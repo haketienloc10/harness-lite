@@ -53,9 +53,14 @@ Coordinator phải:
 * xác định active run,
 * xác định current phase,
 * xác định next required role,
-* tạo hoặc cập nhật dispatch files,
+* nếu user request dài, nhiều ý, mơ hồ, mâu thuẫn, hoặc có khả năng cần tách task, phải xác nhận các ý chính với user trước khi tạo Harness run,
+* không tạo run từ một long request chưa rõ scope,
+* sau khi user xác nhận, tạo request snapshot chứa full confirmed request,
+* tạo request brief trung lập, ngắn gọn, chỉ gồm goal, explicit requirements, explicit constraints, explicit non-goals, ambiguity còn lại, và path tới full request snapshot,
+* tạo dispatch file cho required role tiếp theo khi bắt đầu role mới hoặc chuyển phase,
 * spawn required subagent,
-* cập nhật project state và run state sau khi role hoàn tất.
+* đọc role result sau khi subagent hoàn tất,
+* cập nhật project state và run state sau khi role hoàn tất, chỉ dựa trên status, artifact paths, evidence summary, blockers, và next lifecycle transition do role báo cáo.
 
 Coordinator không được:
 
@@ -64,38 +69,33 @@ Coordinator không được:
 * tự làm việc của Contract Reviewer,
 * tự làm việc của Generator,
 * tự làm việc của Evaluator,
+* tự viết implementation contract thay Planner,
+* tự viết review verdict thay Contract Reviewer,
+* tự viết implementation output thay Generator,
+* tự viết evaluation result thay Evaluator,
+* tạo request brief chứa implementation plan, review verdict, evaluation result, hoặc suy luận chuyên môn thay cho Planner,
+* duplicate nội dung request dài vào dispatch file,
 * tự approve output do chính nó tạo,
+* sửa dispatch đang được subagent thực thi, trừ khi dispatch sai, thiếu, hoặc không hợp lệ và cần dừng với `BLOCKED`,
 * bỏ qua required subagent role.
 
 Nếu không thể spawn required subagent, Coordinator phải dừng và báo `BLOCKED`.
 
 ## Quy tắc Subagent
 
-Role behavior của subagent được định nghĩa tại:
+Role behavior chi tiết của subagent được định nghĩa tại:
 
 ```txt
 .codex/agents/*.toml
 ```
 
-Subagent phải đọc dispatch file của mình trước.
+Subagent phải đọc dispatch file của mình trước và xem dispatch là source of truth cho role hiện tại.
 
-Subagent chỉ được đọc các file được liệt kê trong dispatch, trừ khi cần validation vì dispatch bị thiếu hoặc không hợp lệ.
+Subagent chỉ được đọc các file được liệt kê trong dispatch và chỉ được ghi các file nằm trong allowed write scope.
 
-Subagent chỉ được ghi các file nằm trong allowed write scope.
+Subagent không được full lifecycle discovery mặc định, không scan unrelated Harness runs, obsolete artifacts, project history, hoặc unrelated source files.
 
-Subagent không được full lifecycle discovery mặc định.
-
-Subagent không được scan unrelated Harness runs, obsolete artifacts, project history, hoặc unrelated source files.
-
-Subagent phải dừng và báo `BLOCKED` nếu:
-
-* dispatch file bị thiếu,
-* required artifact paths bị thiếu,
-* allowed read scope không rõ,
-* allowed write scope không rõ,
-* project state không cho phép role hiện tại chạy,
-* run state không cho phép role hiện tại chạy,
-* required input artifacts bị thiếu hoặc không hợp lệ.
+Nếu dispatch, required inputs, allowed read scope, allowed write scope, project state, hoặc run state bị thiếu, mâu thuẫn, hoặc không hợp lệ, subagent phải dừng và báo `BLOCKED`.
 
 ## Lifecycle Roles
 
@@ -137,6 +137,10 @@ Một dispatch file phải định nghĩa:
 * completion criteria,
 * blocked conditions.
 
+Dispatch phải liệt kê project state và run state trong allowed read paths nếu role cần validation state.
+
+Với long request, dispatch chỉ trỏ tới request brief và request snapshot; không duplicate full request content.
+
 Subagent phải xem dispatch file là source of truth cho task hiện tại.
 
 Nếu dispatch mâu thuẫn với project state hoặc run state, subagent phải dừng và báo `BLOCKED`.
@@ -145,7 +149,7 @@ Nếu dispatch mâu thuẫn với project state hoặc run state, subagent phả
 
 Chỉ Generator được sửa application code.
 
-Chỉ Coordinator được sửa Harness state files, trừ khi dispatch cho phép role khác rõ ràng.
+Chỉ Coordinator được sửa project state và run state, trừ khi dispatch cho phép role khác rõ ràng.
 
 Chỉ Planner được sửa contract artifacts.
 
@@ -190,8 +194,8 @@ Tránh summary dài, lặp lại context, và giải thích suy đoán.
 Khi instruction mâu thuẫn, dùng thứ tự ưu tiên sau:
 
 ```txt
-User request
-> safety and runtime constraints
+safety and runtime constraints
+> User request
 > dispatch file
 > project state
 > run state
