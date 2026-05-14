@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Repository này đã cài **Harness** để điều phối AI-assisted development bằng artifacts, lifecycle state.
+Repository này đã cài **Harness** để điều phối AI-assisted development bằng artifacts lifecycle state.
 
 ## Language Rule
 
@@ -12,7 +12,6 @@ Harness work được chia thành:
 
 - Coordinator: điều phối lifecycle của run và dispatch công việc.
 - Subagent: thực hiện công việc theo role từ dispatch file.
-- Project state: ghi nhận task/run đang active ở cấp project.
 - Run state: ghi nhận trạng thái lifecycle của một run.
 - Dispatch file: định nghĩa role được đọc gì, được sửa gì, và khi nào hoàn thành.
 
@@ -20,29 +19,9 @@ Vị trí chuẩn:
 
 ```txt
 .codex/agents/*.toml
-.harness/project/state.yaml
-.harness/project/state.template.yaml
 .harness/runs/{RUN_ID}/run.yaml
 .harness/runs/{RUN_ID}/dispatch/*.dispatch.md
 ```
-
-## Project State
-
-Trạng thái hiện tại của project nằm tại:
-
-```txt
-.harness/project/state.yaml
-```
-
-Agent phải đọc project state trước khi bắt đầu hoặc tiếp tục Harness work.
-
-Luôn dùng project state trước. Không scan toàn bộ run directories để tự suy đoán task đang active.
-
-Project state chỉ nên chứa active run pointer, current status, current phase, next role, locks, và blocked runs.
-
-Coordinator sở hữu quyền cập nhật project state.
-
-Subagent có thể đọc project state để validation, nhưng không được cập nhật project state trừ khi dispatch cho phép rõ ràng trong write scope.
 
 ## Run Layout
 
@@ -68,7 +47,6 @@ Run directory chuẩn:
 Template tham khảo nằm tại:
 
 ```txt
-.harness/project/state.template.yaml
 .harness/runs/template/run.yaml
 .harness/runs/template/dispatch/role.dispatch.template.md
 ```
@@ -81,8 +59,8 @@ Coordinator chỉ làm nhiệm vụ điều phối.
 
 Coordinator phải:
 
-* đọc project state,
-* xác định active run,
+* xác định run hiện tại từ user request, context hiện tại, hoặc run mới vừa tạo,
+* đọc run state tại `.harness/runs/{RUN_ID}/run.yaml`,
 * xác định current phase,
 * xác định next required role,
 * nếu user request dài, nhiều ý, mơ hồ, mâu thuẫn, hoặc có khả năng cần tách task, phải xác nhận các ý chính với user trước khi tạo Harness run,
@@ -93,7 +71,7 @@ Coordinator phải:
 * spawn required subagent,
 * đọc final report ngắn gọn của subagent sau khi role hoàn tất,
 * không đọc full role artifacts chỉ để xác nhận completion nếu final report đã đủ hợp lệ,
-* cập nhật project state và run state sau khi role hoàn tất, chỉ dựa trên status, artifact paths, evidence summary, blockers, và next lifecycle transition do role báo cáo.
+* cập nhật run state sau khi role hoàn tất, chỉ dựa trên status, artifact paths, evidence summary, blockers, và next lifecycle transition do role báo cáo.
 
 Coordinator không được:
 
@@ -128,7 +106,7 @@ Subagent chỉ được đọc các file được liệt kê trong dispatch và 
 
 Subagent không được full lifecycle discovery mặc định, không scan unrelated Harness runs, obsolete artifacts, project history, hoặc unrelated source files.
 
-Nếu dispatch, required inputs, allowed read scope, allowed write scope, project state, hoặc run state bị thiếu, mâu thuẫn, hoặc không hợp lệ, subagent phải dừng và báo `BLOCKED`.
+Nếu dispatch, required inputs, allowed read scope, allowed write scope, hoặc run state bị thiếu, mâu thuẫn, hoặc không hợp lệ, subagent phải dừng và báo `BLOCKED`.
 
 ## Lifecycle Roles
 
@@ -170,7 +148,7 @@ Một dispatch file phải định nghĩa:
 * completion criteria,
 * blocked conditions.
 
-Dispatch phải liệt kê project state và run state trong allowed read paths nếu role cần validation state.
+Dispatch phải liệt kê run state trong allowed read paths nếu role cần validation state.
 
 Với long request, dispatch chỉ trỏ tới request brief và request snapshot; không duplicate full request content.
 
@@ -178,11 +156,11 @@ Nếu một edit target không nằm trong `allowed_write_paths`, không sửa f
 
 Subagent phải xem dispatch file là source of truth cho task hiện tại.
 
-Nếu dispatch mâu thuẫn với project state hoặc run state, subagent phải dừng và báo `BLOCKED`.
+Nếu dispatch mâu thuẫn với run state, subagent phải dừng và báo `BLOCKED`.
 
 ## Write Scope Rules
 
-Chỉ Coordinator được sửa project state, run state, và dispatch files.
+Chỉ Coordinator được sửa run state và dispatch files.
 
 Chỉ Planner được sửa planner brief, implementation contract, và decision artifacts khi dispatch cho phép durable decision creation hoặc revision.
 
@@ -250,7 +228,6 @@ Khi instruction mâu thuẫn, dùng thứ tự ưu tiên sau:
 safety and runtime constraints
 > User request
 > dispatch file
-> project state
 > run state
 > this AGENTS.md
 > role-specific defaults

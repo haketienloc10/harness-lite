@@ -22,7 +22,7 @@ It refuses to overwrite existing paths. To overwrite:
 curl -fsSL https://raw.githubusercontent.com/haketienloc10/harness-lite/main/install.sh | FORCE=1 sh
 ```
 
-`harness-lite` is a small Codex project skeleton for role-based AI-assisted development. It keeps orchestration explicit through project state, run state, dispatch files, and four scoped lifecycle roles.
+`harness-lite` is a small Codex project skeleton for role-based AI-assisted development. It keeps orchestration explicit through run state, dispatch files, and four scoped lifecycle roles.
 
 ## When to use
 
@@ -44,8 +44,6 @@ Planner -> Contract Reviewer -> Generator -> Evaluator
   harness-evaluator.toml
 
 .harness/
-  project/state.yaml
-  project/state.template.yaml
   runs/template/run.yaml
   runs/template/dispatch/role.dispatch.template.md
   decisions/template/decisions.template.md
@@ -57,7 +55,7 @@ README.md
 
 ## Runtime expectation
 
-Codex reads project-scoped custom agents from `.codex/agents/*.toml`. The Coordinator uses `AGENTS.md`, `.harness/project/state.yaml`, run state, and dispatch files to decide which role runs next.
+Codex reads project-scoped custom agents from `.codex/agents/*.toml`. The Coordinator uses `AGENTS.md`, run state, and dispatch files to decide which role runs next.
 
 ## Starting a run
 
@@ -69,7 +67,7 @@ cp .harness/runs/template/run.yaml .harness/runs/<RUN_ID>/run.yaml
 cp .harness/runs/template/dispatch/role.dispatch.template.md .harness/runs/<RUN_ID>/dispatch/harness-planner.dispatch.md
 ```
 
-Then replace `<RUN_ID>`, `<ROLE>`, `<PHASE>`, and the dispatch-specific read/write paths. Update `.harness/project/state.yaml` so it points at the active run.
+Then replace `<RUN_ID>`, `<ROLE>`, `<PHASE>`, and the dispatch-specific read/write paths. The run's lifecycle state lives in `.harness/runs/<RUN_ID>/run.yaml`.
 
 Use `AGENTS.md` as the canonical artifact layout reference for a run. Files under `.harness/**/template/` are examples only, not active run artifacts.
 
