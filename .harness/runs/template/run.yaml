@@ -1,16 +1,16 @@
-run_id: <RUN_ID>
+run_id: {RUN-YYYYMMDD-NNN-task-slug}
 status: initialized
 current_phase: planning
 next_role: harness_planner
-request_snapshot: .harness/runs/<RUN_ID>/00-request-snapshot.md
-request_brief: .harness/runs/<RUN_ID>/00-request-brief.md
+request_snapshot: .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/00-request-snapshot.md
+request_brief: .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/00-request-brief.md
 
 artifacts:
-  planner_brief: .harness/runs/<RUN_ID>/01-planner-brief.md
-  implementation_contract: .harness/runs/<RUN_ID>/02-implementation-contract.md
-  contract_review: .harness/runs/<RUN_ID>/03-contract-review.md
-  implementation_report: .harness/runs/<RUN_ID>/04-implementation-report.md
-  evaluator_report: .harness/runs/<RUN_ID>/05-evaluator-report.md
+  planner_brief: .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/01-planner-brief.md
+  implementation_contract: .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/02-implementation-contract.md
+  contract_review: .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/03-contract-review.md
+  implementation_report: .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/04-implementation-report.md
+  evaluator_report: .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/05-evaluator-report.md
 
 lifecycle:
   - role: harness_planner

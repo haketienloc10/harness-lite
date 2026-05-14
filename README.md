@@ -62,12 +62,12 @@ Codex reads project-scoped custom agents from `.codex/agents/*.toml`. The Coordi
 Create a new run directory from the templates:
 
 ```bash
-mkdir -p .harness/runs/<RUN_ID>/dispatch
-cp .harness/runs/template/run.yaml .harness/runs/<RUN_ID>/run.yaml
-cp .harness/runs/template/dispatch/role.dispatch.template.md .harness/runs/<RUN_ID>/dispatch/harness-planner.dispatch.md
+mkdir -p .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/dispatch
+cp .harness/runs/template/run.yaml .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml
+cp .harness/runs/template/dispatch/role.dispatch.template.md .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/dispatch/harness-planner.dispatch.md
 ```
 
-Then replace `<RUN_ID>`, `<ROLE>`, `<PHASE>`, and the dispatch-specific read/write paths. The run's lifecycle state lives in `.harness/runs/<RUN_ID>/run.yaml`.
+Then replace `{RUN-YYYYMMDD-NNN-task-slug}`, `<ROLE>`, `<PHASE>`, and the dispatch-specific read/write paths. The run's lifecycle state lives in `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml`.
 
 Use `AGENTS.md` as the canonical artifact layout reference for a run. Files under `.harness/**/template/` are examples only, not active run artifacts.
 

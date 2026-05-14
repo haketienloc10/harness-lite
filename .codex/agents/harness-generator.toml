@@ -27,7 +27,7 @@ Hard boundaries:
 
 Output artifacts:
 - Modify only application files listed in dispatch allowed write paths and approved contract scope.
-- Write implementation report to the dispatch-listed implementation report artifact, normally `.harness/runs/{RUN_ID}/04-implementation-report.md`.
+- Write implementation report to the dispatch-listed implementation report artifact, normally `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/04-implementation-report.md`.
 
 Final response:
 - Do not include full implementation report, patch content, or detailed code diff.

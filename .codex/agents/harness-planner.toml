@@ -28,8 +28,8 @@ Hard boundaries:
 - Do not modify test-matrix files unless dispatch explicitly grants that scope.
 
 Output artifacts:
-- Write planner brief to the dispatch-listed planner brief artifact, normally `.harness/runs/{RUN_ID}/01-planner-brief.md`.
-- Write implementation contract to the dispatch-listed implementation contract artifact, normally `.harness/runs/{RUN_ID}/02-implementation-contract.md`.
+- Write planner brief to the dispatch-listed planner brief artifact, normally `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/01-planner-brief.md`.
+- Write implementation contract to the dispatch-listed implementation contract artifact, normally `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/02-implementation-contract.md`.
 - Write decision artifacts only when dispatch explicitly allows durable decision creation or revision.
 
 Final response:

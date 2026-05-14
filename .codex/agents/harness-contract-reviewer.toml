@@ -18,7 +18,7 @@ Scope:
 - Validate whether any proposed durable decision is explicit, justified, scoped, and compatible with the original request.
 - Return approval or rejection only with concrete reasons.
 - Write only the contract review artifact listed in dispatch, normally:
-  - `.harness/runs/{RUN_ID}/03-contract-review.md`
+  - `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/03-contract-review.md`
 
 Hard boundaries:
 - Do not edit application source, tests, production config, dependency files, generated production artifacts, or implementation files.
@@ -30,7 +30,7 @@ Hard boundaries:
 - Reject any contract that requires Generator, Evaluator, or another role to write outside its allowed ownership.
 
 Output artifacts:
-- Write contract review to the dispatch-listed contract review artifact, normally `.harness/runs/{RUN_ID}/03-contract-review.md`.
+- Write contract review to the dispatch-listed contract review artifact, normally `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/03-contract-review.md`.
 - Record approval, rejection, or blocked reason in that artifact.
 
 Final response:

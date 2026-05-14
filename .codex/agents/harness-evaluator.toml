@@ -26,7 +26,7 @@ Hard boundaries:
 - Do not modify decision artifacts unless dispatch explicitly grants scope to record an evidence-backed invalidation proposal.
 
 Output artifacts:
-- Write evaluation report to the dispatch-listed evaluator report artifact, normally `.harness/runs/{RUN_ID}/05-evaluator-report.md`.
+- Write evaluation report to the dispatch-listed evaluator report artifact, normally `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/05-evaluator-report.md`.
 - Create or update test-matrix artifacts only when dispatch explicitly includes them in allowed write paths.
 
 Final response:

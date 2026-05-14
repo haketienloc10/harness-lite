@@ -2,6 +2,12 @@
 
 Repository này đã cài **Harness** để điều phối AI-assisted development bằng artifacts lifecycle state.
 
+Các tệp trong thư mục `.harness/**/template/` chỉ là ví dụ và không được coi là các thành phần dự án đang hoạt động.
+
+## Language Rule
+
+Reply theo ngôn ngữ người dùng; giữ code, command, path, API name, logs, schema keys, package names, và identifiers ở dạng gốc.
+
 ## Quy tắc bắt buộc dùng Harness
 
 Repository này dùng Harness cho mọi công việc triển khai.
@@ -15,56 +21,16 @@ Planner -> Contract Reviewer -> Generator -> Evaluator
 ```
 Main agent là Coordinator.
 
-## Language Rule
+Ranh giới role:
 
-Reply theo ngôn ngữ người dùng; giữ code, command, path, API name, logs, schema keys, package names, và identifiers ở dạng gốc.
+* Planner tạo hoặc cập nhật implementation contract.
+* Contract Reviewer approve, reject, hoặc block contract.
+* Generator chỉ implement approved contract.
+* Evaluator verify generated result dựa trên approved contract.
 
-## Mô hình cốt lõi
+Không role nào được approve chính output của mình.
 
-Harness work được chia thành:
-
-- Coordinator: điều phối lifecycle của run và dispatch công việc.
-- Subagent: thực hiện công việc theo role từ dispatch file.
-- Run state: ghi nhận trạng thái lifecycle của một run.
-- Dispatch file: định nghĩa role được đọc gì, được sửa gì, và khi nào hoàn thành.
-
-Vị trí chuẩn:
-
-```txt
-.codex/agents/*.toml
-.harness/runs/{RUN_ID}/run.yaml
-.harness/runs/{RUN_ID}/dispatch/*.dispatch.md
-```
-
-## Run Layout
-
-Run directory chuẩn:
-
-```txt
-.harness/runs/{RUN_ID}/
-  run.yaml
-  00-request-snapshot.md
-  00-request-brief.md
-  01-planner-brief.md
-  02-implementation-contract.md
-  03-contract-review.md
-  04-implementation-report.md
-  05-evaluator-report.md
-  dispatch/
-    harness-planner.dispatch.md
-    harness-contract-reviewer.dispatch.md
-    harness-generator.dispatch.md
-    harness-evaluator.dispatch.md
-```
-
-Template tham khảo nằm tại:
-
-```txt
-.harness/runs/template/run.yaml
-.harness/runs/template/dispatch/role.dispatch.template.md
-```
-
-Files under `.harness/**/template/` are examples only and must not be treated as active project artifacts.
+Không role nào được âm thầm bỏ qua next lifecycle role.
 
 ## Quy tắc Coordinator
 
@@ -73,7 +39,7 @@ Coordinator chỉ làm nhiệm vụ điều phối.
 Coordinator phải:
 
 * xác định run hiện tại từ user request, context hiện tại, hoặc run mới vừa tạo,
-* đọc run state tại `.harness/runs/{RUN_ID}/run.yaml`,
+* đọc run state tại `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml`,
 * xác định current phase,
 * xác định next required role,
 * nếu user request dài, nhiều ý, mơ hồ, mâu thuẫn, hoặc có khả năng cần tách task, phải xác nhận các ý chính với user trước khi tạo Harness run,
@@ -121,25 +87,6 @@ Subagent không được full lifecycle discovery mặc định, không scan unr
 
 Nếu dispatch, required inputs, allowed read scope, allowed write scope, hoặc run state bị thiếu, mâu thuẫn, hoặc không hợp lệ, subagent phải dừng và báo `BLOCKED`.
 
-## Lifecycle Roles
-
-Minimal Harness lifecycle:
-
-```txt
-Planner -> Contract Reviewer -> Generator -> Evaluator
-```
-
-Ranh giới role:
-
-* Planner tạo hoặc cập nhật implementation contract.
-* Contract Reviewer approve, reject, hoặc block contract.
-* Generator chỉ implement approved contract.
-* Evaluator verify generated result dựa trên approved contract.
-
-Không role nào được approve chính output của mình.
-
-Không role nào được âm thầm bỏ qua next lifecycle role.
-
 ## Dispatch Contract
 
 Mỗi role phải được dispatch thông qua dispatch file.
@@ -147,7 +94,7 @@ Mỗi role phải được dispatch thông qua dispatch file.
 Dispatch files nằm tại:
 
 ```txt
-.harness/runs/{RUN_ID}/dispatch/
+.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/dispatch/
 ```
 
 Một dispatch file phải định nghĩa:
@@ -247,3 +194,33 @@ safety and runtime constraints
 ```
 
 Nếu conflict ảnh hưởng tới permission, lifecycle order, hoặc write scope, dừng và báo `BLOCKED`.
+
+## Run Layout
+
+Run directory chuẩn:
+
+```txt
+.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/
+  run.yaml
+  00-request-snapshot.md
+  00-request-brief.md
+  01-planner-brief.md
+  02-implementation-contract.md
+  03-contract-review.md
+  04-implementation-report.md
+  05-evaluator-report.md
+  dispatch/
+    harness-planner.dispatch.md
+    harness-contract-reviewer.dispatch.md
+    harness-generator.dispatch.md
+    harness-evaluator.dispatch.md
+```
+
+Template tham khảo nằm tại:
+
+```txt
+.harness/runs/template/run.yaml
+.harness/runs/template/dispatch/role.dispatch.template.md
+```
+
+Files under `.harness/**/template/` are examples only and must not be treated as active project artifacts.

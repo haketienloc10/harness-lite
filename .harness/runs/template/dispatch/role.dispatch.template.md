@@ -1,13 +1,13 @@
 ---
-run_id: <RUN_ID>
+run_id: {RUN-YYYYMMDD-NNN-task-slug}
 role: <ROLE>
 current_phase: <PHASE>
 required_input_artifacts:
-  - .harness/runs/<RUN_ID>/run.yaml
+  - .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml
   - <dispatch-specific input artifact>
 allowed_read_paths:
-  - .harness/runs/<RUN_ID>/run.yaml
-  - .harness/runs/<RUN_ID>/dispatch/<ROLE>.dispatch.md
+  - .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml
+  - .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}YMMDD-NNN-task-slug}/dispatch/<ROLE>.dispatch.md
   - <path>
 allowed_write_paths:
   - <path>
@@ -27,13 +27,13 @@ blocked_conditions:
 
 ## Required Input Artifacts
 
-- `.harness/runs/<RUN_ID>/run.yaml`
+- `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml`
 - `<dispatch-specific input artifact>`
 
 ## Allowed Read Paths
 
-- `.harness/runs/<RUN_ID>/run.yaml`
-- `.harness/runs/<RUN_ID>/dispatch/<ROLE>.dispatch.md`
+- `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml`
+- `.harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/dispatch/<ROLE>.dispatch.md`
 - `<path>`
 
 ## Allowed Write Paths
