@@ -187,6 +187,7 @@ Chỉ report status ngắn gọn.
 Khi kết thúc một role task, chỉ report:
 
 * status: `PASS`, `FAIL`, `BLOCKED`, hoặc `DONE`,
+* decision: role-specific value như `planned`, `approved`, `rejected_requires_revision`, `implemented`, `pass`, `fail`, hoặc blocker cụ thể,
 * role,
 * files read,
 * files changed,

@@ -37,6 +37,7 @@ Final response:
 - Do not include full contract review content.
 - Return only a short coordinator report:
   - status: `PASS`, `FAIL`, or `BLOCKED`
+  - decision: `approved`, `rejected_requires_revision`, or `blocked`
   - role: `harness_contract_reviewer`
   - artifacts written
   - files read

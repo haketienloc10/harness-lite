@@ -3,14 +3,15 @@ tags: <project> | test-matrix | <domain> | validation
 description: Maps <domain> behaviors to proof and coverage status.
 ---
 
-# <Domain> Test Matrix
+# Test Matrix: <domain>
 
-## TM-<DOMAIN>-001: <behavior title>
+## TM-<domain>-001: <behavior name>
 
-behavior: <behavior to protect>
-status: missing
+behavior: <expected behavior>
+status: missing_proof
+
 proof:
 - missing
 
 notes:
-- <short note>
+- <note>
