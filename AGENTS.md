@@ -59,7 +59,8 @@ Coordinator phải:
 * tạo request brief trung lập, ngắn gọn, chỉ gồm goal, explicit requirements, explicit constraints, explicit non-goals, ambiguity còn lại, và path tới full request snapshot,
 * tạo dispatch file cho required role tiếp theo khi bắt đầu role mới hoặc chuyển phase,
 * spawn required subagent,
-* đọc role result sau khi subagent hoàn tất,
+* đọc final report ngắn gọn của subagent sau khi role hoàn tất,
+* không đọc full role artifacts chỉ để xác nhận completion nếu final report đã đủ hợp lệ.
 * cập nhật project state và run state sau khi role hoàn tất, chỉ dựa trên status, artifact paths, evidence summary, blockers, và next lifecycle transition do role báo cáo.
 
 Coordinator không được:
@@ -196,6 +197,7 @@ Khi kết thúc một role task, chỉ report:
 * blockers, nếu có.
 
 Tránh summary dài, lặp lại context, và giải thích suy đoán.
+Coordinator nên dùng final report của subagent để advance state. Coordinator không đọc full role artifacts trừ khi final report bị thiếu, không hợp lệ, blocked, failed, hoặc mâu thuẫn với lifecycle/state/dispatch.
 
 ## Conflict Rule
 
