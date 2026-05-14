@@ -7,7 +7,7 @@ required_input_artifacts:
   - <dispatch-specific input artifact>
 allowed_read_paths:
   - .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/run.yaml
-  - .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}YMMDD-NNN-task-slug}/dispatch/<ROLE>.dispatch.md
+  - .harness/runs/{RUN-YYYYMMDD-NNN-task-slug}/dispatch/<ROLE>.dispatch.md
   - <path>
 allowed_write_paths:
   - <path>
