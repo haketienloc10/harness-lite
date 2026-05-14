@@ -1,5 +1,27 @@
 # harness-lite
 
+## Install into another repo
+
+From the target repo directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/haketienloc10/harness-lite/main/install.sh | sh
+```
+
+The installer downloads the GitHub archive and copies only:
+
+```txt
+.harness
+.codex
+AGENTS.md
+```
+
+It refuses to overwrite existing paths. To overwrite:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/haketienloc10/harness-lite/main/install.sh | FORCE=1 sh
+```
+
 `harness-lite` is a small Codex project skeleton for role-based AI-assisted development. It keeps orchestration explicit through project state, run state, dispatch files, and four scoped lifecycle roles.
 
 ## When to use
