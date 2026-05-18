@@ -54,9 +54,9 @@ Mọi yêu cầu thay đổi cấu trúc (sửa code, cập nhật test, thay đ
 ## [SUBAGENT_ROUTING_PROTOCOL]
 Định tuyến chính xác subagent chuyên trách (Chỉ định nghĩa phạm vi công việc, không làm thay vai trò của subagent):
 * `harness_planner`: Khi yêu cầu mơ hồ hoặc cần phân rã kiến trúc, thiết lập kế hoạch.
+* `harness_plan_reviewer`: Khi cần kiểm tra, phê duyệt kế hoạch.
 * `harness_generator`: Khi cần chỉnh sửa mã nguồn, viết test hoặc thực thi kỹ thuật.
 * `harness_evaluator`: Khi cần kiểm thử, đánh giá và xác thực kết quả.
-* `harness_contract_reviewer`: Khi cần kiểm tra, phê duyệt kế hoạch hoặc cam kết ràng buộc (contract).
 
 ---
 
