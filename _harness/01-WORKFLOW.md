@@ -39,6 +39,10 @@
     `docs/decisions/0004-sqlite-durable-layer.md`.
   - `IF` chạm CLI/installer: Đọc `docs/decisions/0005...` và
     `crates/harness-cli/*`.
+  - `IF` tác vụ liên quan đến cấp độ trưởng thành (maturity), đo lường hiệu năng
+    (benchmark), khả năng quan sát (observability), hoặc chất lượng dấu vết
+    (trace quality): BẮT BUỘC đọc `docs/HARNESS_COMPONENTS.md` và
+    `docs/HARNESS_MATURITY.md`.
 - **Tạo Story:**
   - `IF [Lane == tiny]`: Bỏ qua Story.
   - `IF [Lane == normal]`: Tạo 1 file từ `docs/templates/story.md`. Link product
@@ -89,7 +93,10 @@
   - `Detailed` (Cho High-Risk): Cần Standard + `decisions_made` (JSON), `errors`
     (JSON, ghi 'none' nếu không có), `duration_seconds`, `token_estimate`.
 - **Friction Protocol:** Friction phải NÊU ĐÍCH DANH VẤN ĐỀ, không nêu cảm xúc
-  (Ví dụ Tốt: "Docs thiếu copy cho installer", Ví dụ Tồi: "Docs khó hiểu").
+  (Ví dụ Tốt: "Docs thiếu copy cho installer", Ví dụ Tồi: "Docs khó hiểu"). `IF`
+  tác vụ thất bại (failed/blocked) và cần quy gán lỗi (failure attribution) cho
+  một thành phần hệ thống cụ thể: BẮT BUỘC đọc và tham chiếu
+  `docs/HARNESS_COMPONENTS.md` trong trường báo cáo.
 
 ---
 
