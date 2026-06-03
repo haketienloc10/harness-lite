@@ -141,5 +141,5 @@ scripts/bin/harness-cli trace \
 From a target project directory, run:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/haketienloc10/harness-lite/main/scripts/install.sh?$(date +%s)" | bash
+curl -fsSL "https://raw.githubusercontent.com/haketienloc10/harness-lite/main/install.sh?$(date +%s)" | bash
 ```
