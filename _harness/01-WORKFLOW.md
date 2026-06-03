@@ -33,7 +33,7 @@
 
 ---
 
-## GIAI ĐOẠN 2: PLANNING (Lập kế hoạch)
+## GIAI ĐOẠN 2: PLANNING (Lập kế hoạch - DOCS FIRST)
 
 - **Retrieval Triggers (Kích hoạt lấy Context):**
   - `IF` chạm database schema, durable records, bảng trace, migrations: Đọc
@@ -51,13 +51,19 @@
     (gồm execplan, overview, design, validation).
 - **Decisions:** Nếu đổi Auth, API shape, Security, Data ownership -> BẮT BUỘC
   tạo file `docs/decisions/NNNN-*.md` VÀ chạy `harness-cli decision add`.
+- **[STOP] Hard Gate:** KHÔNG ĐƯỢC phép viết hoặc sửa bất kỳ dòng mã nguồn ứng
+  dụng nào (code logic) nếu Story Packet và Decision Records (nếu có) chưa được
+  viết xong. Nếu hướng đi kiến trúc chưa rõ ràng, phải DỪNG LẠI và hỏi ý kiến
+  con người (Human confirmation) trước khi sang Giai đoạn 3.
 
 ---
 
-## GIAI ĐOẠN 3: IMPLEMENTATION (Triển khai)
+## GIAI ĐOẠN 3: IMPLEMENTATION (Triển khai - CODE LATER)
 
-- **Quy tắc cứng:** Tuân thủ tuyệt đối "Dependency Rule" và "Parse-First
-  Boundary" (Tra cứu tại `02-STANDARDS.md`).
+- **Quy tắc cứng:** Chỉ bắt đầu viết code khi Giai đoạn 2 đã hoàn tất. Tuân thủ
+  tuyệt đối "Dependency Rule" và "Parse-First Boundary" (Tra cứu tại
+  `02-STANDARDS.md`). Bám sát chính xác những gì đã thiết kế trong `execplan.md`
+  hoặc `design.md`.
 
 ---
 
