@@ -6,3 +6,5 @@ coverage
 .nuxt
 target
 .git
+README.md
+guides

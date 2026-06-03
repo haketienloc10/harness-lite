@@ -31,199 +31,105 @@ That leads to common failure modes:
 - Architecture tradeoffs are repeated instead of inherited.
 - Large requests do not get broken into reviewable story-sized work.
 
-## The Harness Approach
 
-A repository starts to have a harness when it helps an agent answer practical
-engineering questions without relying only on chat history:
+# Documentation Map & Harness Onboarding
 
-- What should I read first?
-- What type of work is this?
-- Which product contract does it affect?
-- How risky is the change?
-- What proof will show the work is done?
-- What decision or lesson should future agents inherit?
+Dự án này sử dụng hệ thống **Harness**. Nếu bạn là con người (Developer), file này là điểm xuất phát của bạn để hiểu cách phối hợp với AI Agent. (Nếu bạn là Agent, hãy đọc `docs/00-AGENTS.md` và `docs/01-WORKFLOW.md`).
 
-In this repo, those answers live in:
+## 1. Sơ đồ Tư duy (Mental Model)
 
-- `AGENTS.md` — the stable agent shim with local project notes and Harness doc
-  links.
-- `docs/HARNESS.md` — the human-agent collaboration model.
-- `docs/FEATURE_INTAKE.md` — tiny, normal, and high-risk work classification.
-- `docs/ARCHITECTURE.md` — architecture discovery and boundary rules.
-- `docs/TEST_MATRIX.md` — behavior-to-proof validation expectations.
-- `docs/stories/` — story packets and backlog items.
-- `docs/decisions/` — durable decisions and tradeoffs.
-- `docs/templates/` — reusable spec, story, decision, and validation templates.
-
-OpenAI describes this shift as an agent-first world where humans steer and
-agents execute:
-
-https://openai.com/index/harness-engineering/
-
-## Install Harness Into A Project
-
-From a target project directory, run:
-
-```bash
-curl -fsSL "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --yes
-```
-
-On Windows PowerShell, run:
-
-```powershell
-& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.ps1"))) -Yes
-```
-
-If the target already has `AGENTS.md`, `docs/`, or `scripts/`, choose one:
-
-```bash
-# Update an existing Harness repo without moving existing files
-curl -fsSL "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --merge --yes
-
-# Back up and replace AGENTS.md, docs/, and scripts/
-curl -fsSL "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --override --yes
-```
-
-```powershell
-# Update an existing Harness repo without moving existing files
-& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.ps1"))) -Merge -Yes
-
-# Back up and replace AGENTS.md, docs/, and scripts/
-& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.ps1"))) -Override -Yes
-```
-
-Use `--merge` when a project already has Harness and you want to append newly
-added Harness files without moving the existing `AGENTS.md`, `docs/`, or
-`scripts/` paths into backup. Existing files stay untouched; only missing
-Harness files are created.
-
-For older Harness installs whose `AGENTS.md` still contains the full generated
-operating guide, refresh it into the small stable shim:
-
-```bash
-curl -fsSL "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --merge --refresh-agent-shim --yes
-```
-
-The refresh backs up the existing file. If it detects the old Harness-generated
-guide, it replaces it with the shim. If the file appears custom, it appends or
-updates a marked Harness block instead of overwriting the project's local
-instructions.
-
-Or install into a specific path:
-
-```bash
-curl -fsSL "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- --directory /path/to/project --yes
-```
-
-```powershell
-& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/haketienloc10/repository-harness/main/scripts/install-harness.ps1"))) -Directory C:\path\to\project -Yes
-```
-
-Use `--dry-run` on Bash or `-DryRun` on PowerShell to preview changes before
-writing files.
-
-The installer also downloads the prebuilt Harness CLI for the current platform,
-verifies its `.sha256` checksum, and installs it at `scripts/bin/harness-cli` on
-macOS/Linux or `scripts/bin/harness-cli.exe` on Windows. The Rust CLI is the
-main Harness tool and stable command path.
-
-Harness CLI release assets are published from tags by the `Harness CLI Release`
-GitHub Actions workflow. The installer expects each release to include
-`harness-cli-<platform>` and `harness-cli-<platform>.sha256` assets for macOS
-arm64, macOS x64, Linux x64, Linux arm64, and Windows x64. The Windows asset is
-`harness-cli-windows-x64.exe` plus `harness-cli-windows-x64.exe.sha256`.
-
-## Try The Flow
-
-The fastest way to understand the harness is to inspect the tiny demo:
-
-- `docs/demo/README.md`: shows how a simple product idea becomes product docs,
-  stories, validation expectations, and decisions before implementation starts.
-
-A typical flow looks like this:
+Mọi tác vụ trong dự án này đều đi qua một luồng khép kín từ lúc bạn (con người) đưa ra yêu cầu (Intent) cho đến khi ra kết quả.
 
 ```text
-human intent or product spec
-  -> product contract
-  -> feature intake
-  -> story packet
-  -> validation expectations
-  -> implementation work
-  -> decision or lesson captured for future agents
+------------------+
+| Human intent    |
++------------------+
+         |
+         v
++------------------+
+| Feature intake   | (Phân loại tự động rủi ro: Tiny/Normal/High-risk)
++------------------+
+         |
+         v
++------------------+
+| Story packet     |
++------------------+
+         |
+         v
++------------------+
+| Agent work loop  |
++------------------+
+         |
+         v
++------------------+
+| Product delta    | ---> Code, Test, Tài liệu sản phẩm
++------------------+
+         |
+         v
++------------------+
+| Validation proof | ---> Unit, Integration, E2E tests
++------------------+
+         |
+         v
++------------------+
+| Harness delta    | ---> Cập nhật quy trình, Backlog, Cấu trúc
++------------------+
+         |
+         v
++------------------+
+| Next intent      |
++------------------+
+
 ```
 
-Implementation prompts do not go straight to code. They first pass through
-feature intake, become story-sized work when needed, and then carry both product
-validation and harness maintenance expectations.
+## 2. Lưu trữ Bền vững (Durable Layer)
 
-## Current State
+Chính sách và cách làm việc được viết ở các file Markdown.
+Nhưng dữ liệu vận hành thực tế (Tiến độ Story, Lịch sử Trace, Backlog) **được lưu trong cơ sở dữ liệu SQLite cục bộ**.
+Hãy sử dụng CLI do dự án cung cấp:
 
-This repository is in Harness v0.
+* macOS/Linux: `scripts/bin/harness-cli`
+* Windows: `scripts/bin/harness-cli.exe`
 
-There is no application implementation and no baked-in product specification
-yet. The current work is the reusable project harness: the file structure, agent
-operating model, feature intake process, story templates, and validation
-expectations that help humans and agents turn a future user-provided spec into
-implementation work.
+Ví dụ để kiểm tra trạng thái tiến độ chung, hãy chạy:
+`scripts/bin/harness-cli query matrix`
 
-## Product Sources
+## 3. Hệ thống Trace (Ghi vết)
 
-No product contract is currently defined.
+Mỗi khi Agent hoàn thành tác vụ, nó sẽ để lại một "Trace" (dấu vết). Đây là cơ sở để đánh giá năng lực của AI và tìm ra các điểm nghẽn (Friction) trong quy trình.
 
-When a user provides a project specification, add or reference it as the input
-spec for the first buildout, then derive smaller living artifacts from it:
+### Ví dụ về Trace Tốt (Tier Detailed)
 
-- `docs/product/`: current product contract files, created from the spec.
-- `docs/stories/`: story packets and backlog created from selected work.
-- `docs/TEST_MATRIX.md`: behavior-to-proof control panel.
-- `docs/decisions/`: durable decisions and tradeoffs.
+Dùng cho công việc rủi ro cao (High-risk). Chứa đầy đủ bối cảnh, mảng JSON rõ ràng và ghi nhận chính xác lỗi/điểm nghẽn:
 
-Do not keep a project-specific spec or product breakdown in this harness until a
-real project supplies one.
+```bash
+scripts/bin/harness-cli trace \
+  --summary "Completed high-risk auth role migration with audit proof" \
+  --intake 51 \
+  --story US-014 \
+  --agent codex \
+  --outcome completed \
+  --duration 4200 \
+  --tokens 52000 \
+  --actions '["read access-control docs","created migration","updated audit tests"]' \
+  --read '["docs/product/permissions.md","docs/decisions/0008.md"]' \
+  --changed '["src/auth/roles.ts","tests/auth-roles.test.ts"]' \
+  --decisions '["kept manager role scoped to workspace"]' \
+  --errors '["none"]' \
+  --friction '["Existing permission docs did not define delegated admin; added backlog item."]' \
+  --notes "Detailed trace required because the task touched authorization."
 
-## Repository Structure
-
-```text
-project/
-  AGENTS.md
-  README.md
-  docs/
-    HARNESS.md
-    FEATURE_INTAKE.md
-    ARCHITECTURE.md
-    TEST_MATRIX.md
-    HARNESS_BACKLOG.md
-    product/
-    stories/
-    decisions/
-    demo/
-    templates/
-  scripts/
-    README.md
 ```
 
-## Contributing
+### Ví dụ về Trace Kém (Không được chấp nhận)
 
-This project is early and benefits most from real-world agent failure cases,
-example harness installs, docs improvements, and reusable workflow patterns. See
-`CONTRIBUTING.md` for contribution ideas.
+Trace này vô giá trị cho việc đo lường và bàn giao:
 
-Useful contributions include:
+```bash
+scripts/bin/harness-cli trace \
+  --summary "did phase 2" \
+  --outcome completed
 
-- Show how the harness works in a real project.
-- Add missing templates or improve existing ones.
-- Propose validation patterns for different stacks.
-- Share failures where an agent made the wrong change because the repo lacked
-  context.
-- Compare harness behavior across Claude Code, Codex, Cursor, and other tools.
+```
 
-## Share
-
-If this idea resonates, please star the repo and share it with someone building
-with coding agents.
-
-Short description:
-
-> An agent-ready repo harness for Claude Code, Codex, Cursor, and other coding
-> agents: AGENTS.md, product contracts, story packets, validation matrix, and
-> decision records.
+*(Lý do kém: Không có actions, không liệt kê file đã đọc/sửa, không liên kết story, thiếu friction signal)*.
