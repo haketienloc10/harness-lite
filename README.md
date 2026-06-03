@@ -34,7 +34,7 @@ That leads to common failure modes:
 
 # Documentation Map & Harness Onboarding
 
-Dự án này sử dụng hệ thống **Harness**. Nếu bạn là con người (Developer), file này là điểm xuất phát của bạn để hiểu cách phối hợp với AI Agent. (Nếu bạn là Agent, hãy đọc `docs/00-AGENTS.md` và `docs/01-WORKFLOW.md`).
+Dự án này sử dụng hệ thống **Harness**. Nếu bạn là con người (Developer), file này là điểm xuất phát của bạn để hiểu cách phối hợp với AI Agent. (Nếu bạn là Agent, hãy đọc `_harness/00-AGENTS.md` và `_harness/01-WORKFLOW.md`).
 
 ## 1. Sơ đồ Tư duy (Mental Model)
 

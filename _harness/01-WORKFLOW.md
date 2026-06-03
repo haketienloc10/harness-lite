@@ -2,6 +2,9 @@
 
 ## ĐỊNH MỨC TOKEN (Context Budget)
 
+- **Tài liệu dùng chung (Luôn có thể truy xuất):** Bất cứ khi nào cần tương tác
+  với `harness.db`, Agent luôn được phép đọc `_harness/03-CLI_REFERENCE.md` để
+  lấy cú pháp.
 - **Tiny Lane:** ~2,000 tokens. Chỉ đọc `00-AGENTS.md`, intake docs, matrix
   query, và file cần sửa.
 - **Normal Lane:** ~5,000 tokens. Đọc thêm product/story docs liên quan,
@@ -70,7 +73,8 @@
   2. Gắn verify command:
      `harness-cli story update --id <ID> --verify "<command>"`.
   3. Chạy xác thực: `harness-cli story verify <ID>`. _(Lệnh thoát mã 0=pass,
-     1=fail. Nếu fail, Agent VẪN ĐƯỢC sang Giai đoạn 5 để ghi nhận tác vụ dở dang)._
+     1=fail. Nếu fail, Agent VẪN ĐƯỢC sang Giai đoạn 5 để ghi nhận tác vụ dở
+     dang)._
 
 ---
 

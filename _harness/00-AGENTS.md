@@ -17,7 +17,8 @@ wrapping cho các đoạn văn bản chuẩn.
   file docs nhỏ hơn.
 - **Durable Layer:** Chính sách nằm ở file Markdown, còn dữ liệu vận hành
   (intake, story, quyết định, trace) PHẢI lưu bằng SQLite (`harness.db`) thông
-  qua CLI.
+  qua CLI. BẮT BUỘC tra cứu `_harness/03-CLI_REFERENCE.md` để biết cú pháp và
+  tham số chuẩn xác của mọi lệnh `harness-cli`.
 
 ## 2. Đầu ra của một tác vụ
 
@@ -28,5 +29,5 @@ Mỗi tác vụ tạo ra một trong hai (hoặc cả hai) kết quả:
 - **Harness Delta:** Thay đổi về docs, templates, validation, backlog items,
   hoặc decision records để giúp tác vụ sau dễ dàng hơn.
 
-**[HÀNH ĐỘNG TIẾP THEO]:** Agent BẮT BUỘC chuyển sang đọc `_harness/01-WORKFLOW.md`
-để bắt đầu quy trình.
+**[HÀNH ĐỘNG TIẾP THEO]:** Agent BẮT BUỘC chuyển sang đọc
+`_harness/01-WORKFLOW.md` để bắt đầu quy trình.
