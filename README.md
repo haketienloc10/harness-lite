@@ -133,3 +133,13 @@ scripts/bin/harness-cli trace \
 ```
 
 *(Lý do kém: Không có actions, không liệt kê file đã đọc/sửa, không liên kết story, thiếu friction signal)*.
+
+---
+
+## Install Harness Into A Project
+
+From a target project directory, run:
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/haketienloc10/harness-lite/main/scripts/install.sh?$(date +%s)" | bash
+```
