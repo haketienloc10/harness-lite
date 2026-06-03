@@ -35,7 +35,8 @@
 
 - **Retrieval Triggers (Kích hoạt lấy thêm Context):**
   - `IF` chạm DB schema/migration: Đọc `docs/decisions/0004...` và
-    `scripts/schema/`.
+    `scripts/schema/`(bao gồm `scripts/schema/001-init.sql`) và
+    `docs/decisions/0004-sqlite-durable-layer.md`.
   - `IF` chạm CLI/installer: Đọc `docs/decisions/0005...` và
     `crates/harness-cli/*`.
 - **Tạo Story:**
@@ -68,13 +69,18 @@
 - **Hành động CLI:**
   1. `harness-cli story update --id <ID> --unit 1 ...` (Dùng giá trị 1/0).
   2. `harness-cli story update --id <ID> --verify "<command>"`.
-  3. `harness-cli story verify <ID>`.
+  3. `harness-cli story verify <ID>`. Lệnh này sẽ thoát với mã 0 (pass) hoặc 1
+     (fail). Nếu fail, Agent vẫn được phép chuyển sang Giai đoạn 5 để ghi nhận
+     tác vụ dở dang (hệ thống sẽ tự in ra một cảnh báo).
 
 ---
 
 ## GIAI ĐOẠN 5: TRACE (Ghi dấu vết)
 
-- **Bắt buộc theo Tier:**
+- **Trạng thái kết quả (Outcome):** Bắt buộc đánh giá thực tế và chọn một trong
+  các giá trị: `completed`, `blocked`, `partial`, hoặc `failed`.
+- **Bắt buộc theo Tier(Lưu ý: Các trường danh sách phải dùng định dạng JSON
+  array text):**
   - `Minimal` (Cho Tiny): Cần `task_summary` (>10 ký tự), `outcome` (completed,
     blocked, partial, failed).
   - `Standard` (Cho Normal): Cần Minimum + `intake_id`, `story_id`, `agent`,
