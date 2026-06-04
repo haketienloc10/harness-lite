@@ -33,7 +33,8 @@ Giao tiếp với `harness.db` qua `scripts/bin/harness-cli` (macOS/Linux) hoặ
 ## 5. Trace
 
 - Chấm điểm trace: `scripts/bin/harness-cli score-trace --id <id>`
-- Ghi trace (Mảng bắt buộc là JSON array text):
+- Ghi trace (CHÚ Ý: Các trường danh sách phải dùng DẤU PHẨY, KHÔNG dùng ngoặc
+  vuông JSON. Dùng 'none' nếu không có lỗi/ma sát):
   ```bash
   scripts/bin/harness-cli trace \
     --summary "<text>" \
@@ -41,12 +42,12 @@ Giao tiếp với `harness.db` qua `scripts/bin/harness-cli` (macOS/Linux) hoặ
     --intake <id> \
     --story <id> \
     --agent <name> \
-    --actions '["action1","action2"]' \
-    --read '["file1","file2"]' \
-    --changed '["file1"]' \
-    --decisions '["decision1"]' \
-    --errors '["none"]' \
-    --friction '["Problem description. Attribution: Task specification."]' \
+    --actions "action1,action2" \
+    --read "file1,file2" \
+    --changed "file1,file2" \
+    --decisions "decision1,decision2" \
+    --errors "none" \
+    --friction "Problem description. Attribution: Task specification." \
     --duration <seconds> \
     --tokens <estimate> \
     --notes "<text>"

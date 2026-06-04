@@ -30,33 +30,37 @@
   - `IF` [0-1 Flags] VÀ [Đổi logic code]: **Lane = normal**.
 - **5. Hành động:** Chạy
   `harness-cli intake --type "<loại>" --summary "<text>" --lane <lane>`.
+- **[Quy tắc cấm]:** KHÔNG ĐƯỢC tạo hoặc mở rộng một file `SPEC.md` nguyên khối.
+  Mọi thay đổi phải được xé nhỏ vào `docs/product/` và `docs/stories/`.
 
 ---
 
 ## GIAI ĐOẠN 2: PLANNING (Lập kế hoạch - DOCS FIRST)
 
 - **Retrieval Triggers (Kích hoạt lấy Context):**
-  - `IF` chạm database schema, durable records, bảng trace, migrations: Đọc
-    `scripts/schema/` (gồm `001-init.sql`) và
-    `docs/decisions/0004-sqlite-durable-layer.md`.
+  - `IF` chạm database schema, durable records, migrations: Đọc
+    `scripts/schema/` và `docs/decisions/0004-sqlite-durable-layer.md`.
   - `IF` chạm CLI/installer: Đọc `docs/decisions/0005...` và
     `crates/harness-cli/*`.
-  - `IF` liên quan đến maturity, benchmark, observability, trace quality: Đọc
-    `docs/HARNESS_COMPONENTS.md` và `docs/HARNESS_MATURITY.md`.
-- **Tạo Story:**
-  - Đọc `docs/stories/README.md`
-  - Đọc `docs/product/README.md`
+  - `IF` liên quan đến maturity, benchmark, trace quality: Đọc
+    `docs/HARNESS_COMPONENTS.md`, `docs/HARNESS_MATURITY.md`.
+- **Cập nhật Product & Tạo Story:**
   - `IF [Lane == tiny]`: Bỏ qua Story.
-  - `IF [Lane == normal]`: Tạo 1 file từ `docs/templates/story.md`. Link product
-    docs, cập nhật validation.
-  - `IF [Lane == high-risk]`: Tạo folder từ `docs/templates/high-risk-story/`
-    (gồm execplan, overview, design, validation).
+  - `IF [Lane == normal]`: Cập nhật `docs/product/*`. Tạo 1 file sao chép từ
+    `docs/templates/story.md` VÀ lưu theo chuẩn
+    `docs/stories/epics/EXX-<domain>/US-YYY-<title>.md`.
+  - `IF [Lane == high-risk]`: Cập nhật `docs/product/*`. Tạo folder mới theo
+    chuẩn `docs/stories/epics/EXX-<domain>/US-YYY-<title>/`. BẮT BUỘC điền đủ
+    các neo nội dung:
+    - `execplan.md`: (Phải có Scope, Work Phases, Stop Conditions).
+    - `design.md`: (Phải có Domain Model, Interface Contract, Data Model).
+    - `validation.md`: (Phải có Test Plan, Fixtures).
 - **Decisions:** Nếu đổi Auth, API shape, Security, Data ownership -> BẮT BUỘC
-  tạo file `docs/decisions/NNNN-*.md` VÀ chạy `harness-cli decision add`.
-- **[STOP] Hard Gate:** KHÔNG ĐƯỢC phép viết hoặc sửa bất kỳ dòng mã nguồn ứng
-  dụng nào (code logic) nếu Story Packet và Decision Records (nếu có) chưa được
-  viết xong. Nếu hướng đi kiến trúc chưa rõ ràng, phải DỪNG LẠI và hỏi ý kiến
-  con người (Human confirmation) trước khi sang Giai đoạn 3.
+  tạo file `docs/decisions/NNNN-*.md` VÀ chạy
+  `harness-cli decision add --id <NNNN-id> --title "<Tên>" --doc docs/decisions/<file>.md`.
+- **[STOP] Hard Gate:** KHÔNG ĐƯỢC phép viết hoặc sửa mã nguồn ứng dụng nếu
+  Story Packet chưa được viết xong. Nếu hướng đi mông lung, DỪNG LẠI hỏi ý kiến
+  con người.
 
 ---
 
@@ -66,6 +70,10 @@
   tuyệt đối "Dependency Rule" và "Parse-First Boundary" (Tra cứu tại
   `02-STANDARDS.md`). Bám sát chính xác những gì đã thiết kế trong `execplan.md`
   hoặc `design.md`.
+- **[STOP] Cửa ải Kiến trúc:** Trước khi sang Giai đoạn 4, Agent BẮT BUỘC phải
+  tự kiểm tra (self-review) mã nguồn vừa viết: Tầng `interface` có gọi thẳng vào
+  `database` không? Dữ liệu request đã được parse chưa? Nếu vi phạm, phải tự sửa
+  code ngay.
 
 ---
 
@@ -76,30 +84,36 @@
 - **Story Status:** `planned`, `in_progress`, `implemented` (đã code VÀ có
   proof), `changed`, `retired`.
 - **Hành động CLI:**
-  1. Cập nhật matrix: `harness-cli story update --id <ID> --unit 1 ...` (Dùng
-     1/0).
-  2. Gắn verify command:
+  1. Gắn verify command:
      `harness-cli story update --id <ID> --verify "<command>"`.
-  3. Chạy xác thực: `harness-cli story verify <ID>`. _(Lệnh thoát mã 0=pass,
+  2. Chạy xác thực: `harness-cli story verify <ID>`. _(Lệnh thoát mã 0=pass,
      1=fail. Nếu fail, Agent VẪN ĐƯỢC sang Giai đoạn 5 để ghi nhận tác vụ dở
      dang)._
+  3. Cập nhật matrix: `harness-cli story update --id <ID> --unit 1 ...` (Dùng
+     1/0).
+- **[STOP] Cửa ải Bằng chứng:** BẮT BUỘC phải đọc log output (stdout/stderr) của
+  lệnh `verify` trước khi đánh dấu `1` (pass) vào matrix. Cấm tự suy diễn kết
+  quả. (Nếu verify fail, vẫn được sang Giai đoạn 5 để ghi Trace partial/failed).
 
 ---
 
 ## GIAI ĐOẠN 5: TRACE (Ghi dấu vết)
 
+- **Kiểm tra File:** BẮT BUỘC chạy lệnh `git status --short` để lấy chính xác
+  danh sách file trước khi ghi nhận.
 - **Outcome:** Chọn một trong: `completed`, `blocked`, `partial`, hoặc `failed`.
-- **Tier Rules (Dữ liệu mảng bắt buộc dùng JSON array text):**
+- **Tier Rules & Cú pháp CLI:** (CHÚ Ý: Lệnh CLI nhận danh sách ngăn cách bằng
+  DẤU PHẨY, KHÔNG truyền ngoặc vuông JSON array).
   - `Minimal` (Tiny): Cần `task_summary` (>10 ký tự), `outcome`.
   - `Standard` (Normal): Minimal + `intake_id`, `story_id`, `agent`,
-    `actions_taken`, `files_read`, `files_changed`, `errors` hoặc `friction`.
-  - `Detailed` (High-Risk): Standard + `decisions_made`, `errors` (ghi 'none'
-    nếu không có), `duration_seconds`, `token_estimate`.
-- **Friction & Failure Attribution:** Friction phải NÊU ĐÍCH DANH VẤN ĐỀ.
-  `IF [Outcome == failed OR partial]`, Agent BẮT BUỘC quy gán lỗi vào ít nhất 1
-  trong 11 danh mục (Responsibilities): _Task specification, Context selection,
-  Tool access, Project memory, Task state, Observability, Failure attribution,
-  Verification, Permissions, Entropy auditing, Intervention recording_.
+    `actions_taken` (dấu phẩy), `files_read` (dấu phẩy), `files_changed` (dấu
+    phẩy), `errors` hoặc `friction`.
+  - `Detailed` (High-Risk): Standard + `decisions_made` (dấu phẩy), `errors`
+    (ghi 'none' nếu không có), `duration_seconds`, `token_estimate`.
+- **Friction & Failure Attribution:** Friction phải NÊU ĐÍCH DANH VẤN ĐỀ (ghi
+  'none' nếu đã kiểm tra và không có vấn đề).
+  `IF [Outcome == failed OR partial]`, BẮT BUỘC quy gán lỗi vào 1 trong 11
+  Responsibilities (VD: _Task specification_, _Data model_...).
 
 ---
 
