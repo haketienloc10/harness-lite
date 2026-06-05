@@ -18,16 +18,25 @@
 
 - **1. Chọn Type:** `New spec`, `Spec slice`, `Change request`,
   `New initiative`, `Maintenance request`, `Harness improvement`.
+  - **Map Type → Đích đến (artifact):** `New spec` → `docs/product/*` +
+    candidate epics + decisions; `Spec slice` → 1 story packet; `Change request`
+    → story packet hoặc patch; `New initiative` → initiative note + nhiều story;
+    `Maintenance request` → story / validation / decision; `Harness improvement`
+    → cập nhật docs hoặc backlog.
 - **2. Đếm Rủi ro (Risk Flags):** (1) Auth, (2) Authorization, (3) Data model,
   (4) Audit/security, (5) External systems, (6) Public contracts, (7)
   Cross-platform, (8) Existing behavior, (9) Weak proof, (10) Multi-domain.
 - **3. Hard Gates (Rào cản cứng):** Auth, Authorization, Data loss/migration,
   Audit/security, External provider, Làm yếu validation.
 - **4. Thuật toán Lane:**
-  - `IF` [Dính >= 1 Hard Gate] HOẶC [>= 4 Flags]: **Lane = high-risk**.
+  - `IF` [Dính >= 1 Hard Gate] HOẶC [>= 4 Flags]: **Lane = high-risk** (NGOẠI
+    LỆ: nếu con người chủ động thu hẹp phạm vi rõ ràng, được phép hạ lane).
   - `IF` [2-3 Flags]: **Lane = normal**.
   - `IF` [0-1 Flags] VÀ [Sửa docs/copy/setup cơ bản]: **Lane = tiny**.
   - `IF` [0-1 Flags] VÀ [Đổi logic code]: **Lane = normal**.
+  - **[Lưu ý setup/health]:** Việc setup ban đầu hoặc thêm health/smoke endpoint
+    là _smoke proof_, KHÔNG tự động tính là cờ "Public contracts" → đừng leo
+    thang lane chỉ vì health endpoint.
 - **5. Hành động:** Chạy
   `harness-cli intake --type "<loại>" --summary "<text>" --lane <lane>`.
 - **[Quy tắc cấm]:** KHÔNG ĐƯỢC tạo hoặc mở rộng một file `SPEC.md` nguyên khối.
@@ -44,14 +53,28 @@
     `crates/harness-cli/*`.
   - `IF` liên quan đến maturity, benchmark, trace quality: Đọc
     `docs/HARNESS_COMPONENTS.md`, `docs/HARNESS_MATURITY.md`.
+  - `IF` đổi public API shape / hành vi người dùng: Đọc `docs/product/*` và
+    story liên quan TRƯỚC khi sửa.
+  - `IF` phát hiện doc/record cũ, mâu thuẫn, hoặc lặp lại nhầm lẫn: Ghi
+    `friction` (GĐ5) và cân nhắc thêm backlog.
+- **Xử lý theo Input Type (DOCS FIRST):**
+  - `IF [Type == New spec]`: Coi spec là _input material_, KHÔNG giữ làm spec
+    sống. Xé nhỏ vào `docs/product/*` và tạo candidate epics/stories +
+    decisions. (Vẫn áp dụng [Quy tắc cấm] ở cuối GĐ này: không mở rộng spec
+    nguyên khối.)
+  - `IF [Type == New initiative]` HOẶC product area lớn: Tạo 1 _initiative note_
+    gồm: goal, docs ảnh hưởng, candidate stories, validation shape, open
+    decisions, exit criteria (thay vì tạo spec nguyên khối thứ hai).
 - **Cập nhật Product & Tạo Story:**
   - `IF [Lane == tiny]`: Bỏ qua Story.
   - `IF [Lane == normal]`: Cập nhật `docs/product/*`. Tạo 1 file sao chép từ
     `docs/templates/story.md` VÀ lưu theo chuẩn
     `docs/stories/epics/EXX-<domain>/US-YYY-<title>.md`.
   - `IF [Lane == high-risk]`: Cập nhật `docs/product/*`. Tạo folder mới theo
-    chuẩn `docs/stories/epics/EXX-<domain>/US-YYY-<title>/`. BẮT BUỘC điền đủ
-    các neo nội dung:
+    chuẩn `docs/stories/epics/EXX-<domain>/US-YYY-<title>/`. BẮT BUỘC điền đủ 4
+    neo nội dung:
+    - `overview.md`: (Phải có Current/Target Behavior, Affected Users,
+      Non-Goals).
     - `execplan.md`: (Phải có Scope, Work Phases, Stop Conditions).
     - `design.md`: (Phải có Domain Model, Interface Contract, Data Model).
     - `validation.md`: (Phải có Test Plan, Fixtures).
@@ -114,6 +137,13 @@
   'none' nếu đã kiểm tra và không có vấn đề).
   `IF [Outcome == failed OR partial]`, BẮT BUỘC quy gán lỗi vào 1 trong 11
   Responsibilities (VD: _Task specification_, _Data model_...).
+- **Khi nào BẮT BUỘC ghi Friction:** (1) phải suy đoán một luật/nguồn-sự-thật
+  còn thiếu; (2) validation không rõ, không chạy được, hoặc quá tốn kém; (3)
+  doc/record/story cũ hoặc mâu thuẫn; (4) lộ ra bước thủ công lặp lại nên thành
+  template/lệnh/checklist; (5) thay đổi out-of-scope nhưng quan trọng về sau.
+- **[Lưu ý] Decisions ≠ Decision record:** Trường `decisions` trong trace chỉ là
+  bằng chứng, KHÔNG thay thế decision record bền vững ở
+  `docs/decisions/NNNN-*.md` (xem GĐ2).
 
 ---
 
@@ -131,6 +161,9 @@
 Một tác vụ chỉ được coi là xong khi: Đổi code xong (hoặc block đã log),
 Docs/Matrix cập nhật, Validation đã chạy, Trace đã lưu.
 
+- **Cửa ải Quản trị (BẮT BUỘC xin phép người trước khi):** đổi hướng kiến trúc;
+  gỡ hoặc làm yếu yêu cầu validation; đổi source-of-truth hierarchy; đổi luật
+  phân loại rủi ro (lane/hard gate); thay thế chính workflow này.
 - **Rào cản Maturity (Anti-Hallucination):**
   - KHÔNG claim H3 nếu chưa có đối chiếu benchmark và quy gán lỗi theo
     Component.

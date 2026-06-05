@@ -2,15 +2,26 @@
 
 ## 1. QUY TẮC KIẾN TRÚC (ARCHITECTURE)
 
-**Dependency Rule (Quy tắc phụ thuộc):** Inner layers không phụ thuộc outer
-layers. | Tầng (Layer) | Được phép phụ thuộc vào | KHÔNG được phép phụ thuộc vào
-| | :--- | :--- | :--- | | **domain** | Không gì cả (trừ pure utilities) |
-framework, database, UI, provider, process/env | | **application** | domain |
-framework, UI, provider, database concrete clients | | **infrastructure** |
-domain, application | interface controllers hoặc UI | | **interface** | tất cả
-backend layers (domain, app, infra) | UI state hoặc platform shell assumptions |
-| **app surfaces** | API contracts và app-facing clients | domain internals trực
-tiếp |
+**Discovery Before Shape:** Trước khi định hình code/kiến trúc, BẮT BUỘC xác
+định: (1) product surfaces (browser/mobile/desktop/CLI/API/worker); (2) runtime
+stack (ngôn ngữ, framework, DB, queue, provider, hosting); (3) core domains; (4)
+boundary inputs (request, env, webhook, file, credential); (5) validation
+ladder. Chỉ tạo folder/scaffold thật khi một Story bước vào triển khai.
+
+```text
+domain <- application <- infrastructure <- interface <- app surfaces
+```
+
+**Dependency Rule (Quy tắc phụ thuộc):** Inner layers KHÔNG phụ thuộc outer
+layers.
+
+| Tầng (Layer)       | Được phép phụ thuộc vào                  | KHÔNG được phụ thuộc vào                           |
+| ------------------ | ---------------------------------------- | -------------------------------------------------- |
+| **domain**         | Không gì cả (trừ pure utilities)         | framework, database, UI, provider, process/env     |
+| **application**    | domain                                   | framework, UI, provider, database concrete clients |
+| **infrastructure** | domain, application                      | interface controllers hoặc UI                      |
+| **interface**      | tất cả backend layers (domain/app/infra) | UI state hoặc platform shell assumptions           |
+| **app surfaces**   | API contracts và app-facing clients      | domain internals trực tiếp                         |
 
 - **Parse-First Boundary:** Dữ liệu chưa rõ định dạng (HTTP request, env vars,
   rows từ DB, webhooks,...) PHẢI được parse thành typed DTO/Command trước khi
