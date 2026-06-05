@@ -31,18 +31,13 @@ mục cố định: `INPUT` → `STEPS` → `VERIFY` → `ARTIFACTS` → `FRICTI
 
 ## 4. Bảng đăng ký (Registry)
 
-| Trigger                  | Skill file                     |
-| ------------------------ | ------------------------------ |
-| `IF [Type == New spec]`  | `skills/decompose-new-spec.md` |
-| `IF [Lane == high-risk]` | `skills/high-risk-change.md`   |
-
-> Registry cố tình giữ ít. Skill mới chỉ thêm khi có procedure NẶNG/ĐẶC THÙ mọc
-> từ friction (GĐ6) — KHÔNG seed skill chỉ để kể lại luật đã có trong workflow/
-> `02-STANDARDS.md`.
+_Chưa có skill nào đăng ký._ Skill mới chỉ thêm khi có procedure NẶNG/ĐẶC THÙ
+mọc từ friction (GĐ6) — KHÔNG seed skill chỉ để kể lại luật đã có trong workflow
+/ `02-STANDARDS.md`. Khi thêm, mỗi dòng map `Trigger → skills/<tên>.md`.
 
 ## 5. Liên hệ Durable Layer (CLI)
 
 Skill hiện thuần markdown. Khi ghi trace, nêu skill đã dùng trong `--actions`
-hoặc `--notes` (vd `"skill: high-risk-change"`) để truy vết — KHÔNG cần đổi
-binary. (Việc đưa skill vào `harness.db` / lệnh `harness-cli skill ...` là việc
-tương lai, nằm ngoài phạm vi hiện tại.)
+hoặc `--notes` (vd `"skill: <tên-skill>"`) để truy vết — KHÔNG cần đổi binary.
+(Việc đưa skill vào `harness.db` / lệnh `harness-cli skill ...` là việc tương
+lai, nằm ngoài phạm vi hiện tại.)
