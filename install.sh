@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 REPO_OWNER="${HARNESS_LITE_OWNER:-haketienloc10}"
-REPO_NAME="${HARNESS_LITE_REPO:-harness-lite}"
+REPO_NAME="${HARNESS_LITE_REPO:-repo-harness}"
 REF="${HARNESS_LITE_REF:-main}"
 TARGET_DIR="${HARNESS_LITE_TARGET_DIR:-$PWD}"
 
@@ -20,11 +20,11 @@ INSTALL_ITEMS=(
 )
 
 log() {
-  printf '[harness-lite] %s\n' "$*"
+  printf '[repo-harness] %s\n' "$*"
 }
 
 fail() {
-  printf '[harness-lite] ERROR: %s\n' "$*" >&2
+  printf '[repo-harness] ERROR: %s\n' "$*" >&2
   exit 1
 }
 
