@@ -48,11 +48,10 @@
 
 - **Retrieval Triggers (Kích hoạt lấy Context):**
   - `IF` chạm database schema, durable records, migrations: Đọc
-    `scripts/schema/` và `docs/decisions/0004-sqlite-durable-layer.md`.
-  - `IF` chạm CLI/installer: Đọc `docs/decisions/0005...` và
-    `crates/harness-cli/*`.
-  - `IF` liên quan đến maturity, benchmark, trace quality: Đọc
-    `docs/HARNESS_COMPONENTS.md`, `docs/HARNESS_MATURITY.md`.
+    `scripts/schema/`.
+  - `IF` chạm CLI/installer: Đọc `crates/harness-cli/*`.
+  - `IF` liên quan đến maturity, benchmark, trace quality: tra cứu tài liệu tham
+    chiếu sâu trong `docs/*` (xem `00-AGENTS.md` §1).
   - `IF` đổi public API shape / hành vi người dùng: Đọc `docs/product/*` và
     story liên quan TRƯỚC khi sửa.
   - `IF` phát hiện doc/record cũ, mâu thuẫn, hoặc lặp lại nhầm lẫn: Ghi
