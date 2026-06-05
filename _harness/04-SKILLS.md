@@ -31,12 +31,14 @@ mục cố định: `INPUT` → `STEPS` → `VERIFY` → `ARTIFACTS` → `FRICTI
 
 ## 4. Bảng đăng ký (Registry)
 
-| Trigger                                | Skill file                         |
-| -------------------------------------- | ---------------------------------- |
-| `IF [Type == New spec]`                | `skills/decompose-new-spec.md`     |
-| `IF [Lane == high-risk]`               | `skills/high-risk-change.md`       |
-| `IF [Chạm kiến trúc/ranh giới tầng]`   | `skills/discovery-before-shape.md` |
-| `IF [GĐ5/GĐ6: ghi dấu vết + tiến hóa]` | `skills/record-trace-friction.md`  |
+| Trigger                  | Skill file                     |
+| ------------------------ | ------------------------------ |
+| `IF [Type == New spec]`  | `skills/decompose-new-spec.md` |
+| `IF [Lane == high-risk]` | `skills/high-risk-change.md`   |
+
+> Registry cố tình giữ ít. Skill mới chỉ thêm khi có procedure NẶNG/ĐẶC THÙ mọc
+> từ friction (GĐ6) — KHÔNG seed skill chỉ để kể lại luật đã có trong workflow/
+> `02-STANDARDS.md`.
 
 ## 5. Liên hệ Durable Layer (CLI)
 
