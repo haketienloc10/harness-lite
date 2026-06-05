@@ -9,16 +9,12 @@
 - `git status --short` (danh sách file chính xác).
 - Kết quả lệnh `verify`, `intake_id`, `story_id`.
 
-## STEPS (mệnh lệnh, có thứ tự)
+## STEPS (checklist mỏng — luật chi tiết ở GĐ5/GĐ6)
 
-1. Chọn `outcome`: `completed` | `blocked` | `partial` | `failed`.
-2. Ghi trace đúng tier theo lane (DÙNG DẤU PHẨY, KHÔNG JSON array):
-   - Tiny → `Minimal`; Normal → `Standard`; High-risk → `Detailed`.
-3. `IF [outcome == failed OR partial]`: quy gán lỗi vào 1 trong 11
-   Responsibilities.
-4. Áp 5 trigger Friction (GĐ5). Friction phải nêu đích danh, hoặc ghi `none`.
-5. `IF [có friction hoặc thiếu capability]`: thêm backlog `--predicted`; khi
-   đóng dùng `--outcome`.
+1. Thực hiện GĐ5: chọn `outcome` → ghi trace đúng tier theo lane (dấu phẩy,
+   không JSON) → quy gán lỗi nếu `failed/partial` → áp 5 trigger Friction.
+2. Thực hiện GĐ6: friction/thiếu capability → backlog `--predicted` /
+   `--outcome`.
 
 ## VERIFY (bằng chứng cơ học)
 

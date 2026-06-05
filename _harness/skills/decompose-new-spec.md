@@ -10,18 +10,15 @@
 - `docs/product/*` hiện có để biết chỗ ghép vào.
 - `00-AGENTS.md` §1 (hierarchy nguồn sự thật).
 
-## STEPS (mệnh lệnh, có thứ tự)
+## STEPS (công thức HOW — luật chi tiết ở GĐ2)
 
-1. Coi spec là input; KHÔNG tạo/mở rộng file `SPEC.md` nguyên khối ([Quy tắc
-   cấm] ở GĐ2).
-2. Xé nhỏ nội dung vào `docs/product/*` (mỗi chủ đề một file nhỏ).
-3. Liệt kê candidate epics/stories; đặt theo chuẩn
-   `docs/stories/epics/EXX-<domain>/US-YYY-<title>(.md|/)`.
-4. Với mỗi open decision (Auth/API/Security/Data ownership): tạo
-   `docs/decisions/NNNN-*.md` + chạy
-   `harness-cli decision add --id <NNNN-id> --title "<Tên>" --doc <file>`.
-5. Tạo story packet theo lane (tiny: bỏ story; normal: 1 file; high-risk: 4
-   neo).
+Trình tự thực thi; luật giữ ở workflow, không lặp lại ở đây:
+
+1. Xé spec vào `docs/product/*` (theo "Xử lý theo Input Type" + [Quy tắc cấm]).
+2. Lập candidate epics/stories theo chuẩn đặt tên ở GĐ2.
+3. Open decision → decision record + `harness-cli decision add` (theo
+   "Decisions" GĐ2).
+4. Tạo story packet theo lane (theo "Cập nhật Product & Tạo Story" GĐ2).
 
 ## VERIFY (bằng chứng cơ học)
 

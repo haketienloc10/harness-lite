@@ -65,7 +65,7 @@
   - `IF [Type == New spec]`: Coi spec là _input material_, KHÔNG giữ làm spec
     sống. Xé nhỏ vào `docs/product/*` và tạo candidate epics/stories +
     decisions. (Vẫn áp dụng [Quy tắc cấm] ở cuối GĐ này: không mở rộng spec
-    nguyên khối.)
+    nguyên khối.) Công thức chi tiết: `skills/decompose-new-spec.md`.
   - `IF [Type == New initiative]` HOẶC product area lớn: Tạo 1 _initiative note_
     gồm: goal, docs ảnh hưởng, candidate stories, validation shape, open
     decisions, exit criteria (thay vì tạo spec nguyên khối thứ hai).

@@ -9,18 +9,13 @@
 - `02-STANDARDS.md` (Dependency Rule + Parse-First Boundary + sơ đồ layering).
 - Code/tầng hiện có sẽ bị đụng tới; `docs/product/*` + story liên quan.
 
-## STEPS (mệnh lệnh, có thứ tự)
+## STEPS (công thức HOW — luật chi tiết ở 02-STANDARDS)
 
-1. **Khảo sát trước khi định hình** (KHÔNG viết code ở bước này):
-   - Product surfaces: tính năng đụng tới ở đâu?
-   - Runtime stack: ngôn ngữ/framework/tầng nào liên quan?
-   - Core domains: domain model nào bị ảnh hưởng?
-   - Boundary inputs: dữ liệu vào từ đâu, phải parse ở ranh giới nào?
-   - Validation ladder: chứng minh đúng bằng mức nào (`validate:quick` →
-     `test:platform`)?
+1. Trả lời đủ **5 khảo sát "Discovery Before Shape"** ở `02-STANDARDS.md §1`
+   (product surfaces, runtime stack, core domains, boundary inputs, validation
+   ladder). KHÔNG viết code ở bước này.
 2. Ghi phát hiện vào `design.md` (high-risk) hoặc story (normal).
-3. Chốt hướng tầng: `interface`/`application`/`domain`/`infrastructure` — KHÔNG
-   để `interface` gọi thẳng `database`.
+3. Chốt hướng tầng theo sơ đồ layering + Dependency Rule ở `02-STANDARDS.md`.
 
 ## VERIFY (bằng chứng cơ học)
 
@@ -35,8 +30,7 @@
 ## FRICTION HOOKS
 
 - `IF [phải suy đoán domain model/boundary vì thiếu nguồn-sự-thật]`: ghi
-  friction
-  - backlog.
+  friction + backlog (GĐ5/GĐ6).
 - `IF [muốn đổi hướng kiến trúc tổng thể]`: xin phép người (Cửa ải Quản trị).
 
 ## EXIT (tiêu chí xong)
