@@ -34,14 +34,28 @@ That leads to common failure modes:
 
 # Documentation Map & Harness Onboarding
 
-Dự án này sử dụng hệ thống **Harness**. Nếu bạn là con người (Developer), file này là điểm xuất phát của bạn để hiểu cách phối hợp với AI Agent. (Nếu bạn là Agent, hãy đọc `_harness/00-AGENTS.md` và `_harness/01-WORKFLOW.md`).
+Dự án này sử dụng hệ thống **Harness**. Repo có **hai luồng tài liệu** song
+song, phục vụ hai đối tượng khác nhau:
+
+- **Luồng Agent (`_harness/`)** — bộ khung thực thi, văn phong mệnh lệnh, dành
+  cho AI Agent đọc khi làm việc. Điểm vào: `AGENTS.md` →
+  `_harness/00-AGENTS.md` → `_harness/01-WORKFLOW.md`, kèm
+  `_harness/02-STANDARDS.md` (chuẩn kiến trúc) và `_harness/03-CLI_REFERENCE.md`
+  (cú pháp CLI).
+- **Luồng Người đọc (`docs/`)** — tài liệu tham chiếu sâu: chính sách, lý do,
+  taxonomy, maturity, glossary. Dành cho con người và khi cần tra cứu chi tiết.
+  Bắt đầu ở `docs/README.md` và `docs/HARNESS.md`.
+
+Nếu bạn là **con người (Developer)**, README này là điểm xuất phát để hiểu cách
+phối hợp với Agent. Nếu bạn là **Agent**, hãy đọc `_harness/00-AGENTS.md` và
+`_harness/01-WORKFLOW.md`.
 
 ## 1. Sơ đồ Tư duy (Mental Model)
 
 Mọi tác vụ trong dự án này đều đi qua một luồng khép kín từ lúc bạn (con người) đưa ra yêu cầu (Intent) cho đến khi ra kết quả.
 
 ```text
-------------------+
++------------------+
 | Human intent    |
 +------------------+
          |
@@ -94,13 +108,17 @@ Hãy sử dụng CLI do dự án cung cấp:
 Ví dụ để kiểm tra trạng thái tiến độ chung, hãy chạy:
 `scripts/bin/harness-cli query matrix`
 
+Cú pháp và tham số chuẩn xác của mọi lệnh nằm ở `_harness/03-CLI_REFERENCE.md`.
+
 ## 3. Hệ thống Trace (Ghi vết)
 
 Mỗi khi Agent hoàn thành tác vụ, nó sẽ để lại một "Trace" (dấu vết). Đây là cơ sở để đánh giá năng lực của AI và tìm ra các điểm nghẽn (Friction) trong quy trình.
 
 ### Ví dụ về Trace Tốt (Tier Detailed)
 
-Dùng cho công việc rủi ro cao (High-risk). Chứa đầy đủ bối cảnh, mảng JSON rõ ràng và ghi nhận chính xác lỗi/điểm nghẽn:
+Dùng cho công việc rủi ro cao (High-risk). Chứa đầy đủ bối cảnh, các trường danh
+sách phân tách bằng dấu phẩy (KHÔNG dùng mảng JSON) và ghi nhận chính xác
+lỗi/điểm nghẽn:
 
 ```bash
 scripts/bin/harness-cli trace \
@@ -111,14 +129,13 @@ scripts/bin/harness-cli trace \
   --outcome completed \
   --duration 4200 \
   --tokens 52000 \
-  --actions '["read access-control docs","created migration","updated audit tests"]' \
-  --read '["docs/product/permissions.md","docs/decisions/0008.md"]' \
-  --changed '["src/auth/roles.ts","tests/auth-roles.test.ts"]' \
-  --decisions '["kept manager role scoped to workspace"]' \
-  --errors '["none"]' \
-  --friction '["Existing permission docs did not define delegated admin; added backlog item."]' \
+  --actions "read access-control docs,created migration,updated audit tests" \
+  --read "docs/product/permissions.md,docs/decisions/0008-auth-boundary.md" \
+  --changed "src/auth/roles.ts,tests/auth-roles.test.ts" \
+  --decisions "kept manager role scoped to workspace" \
+  --errors "none" \
+  --friction "Existing permission docs did not define delegated admin; added backlog item." \
   --notes "Detailed trace required because the task touched authorization."
-
 ```
 
 ### Ví dụ về Trace Kém (Không được chấp nhận)
