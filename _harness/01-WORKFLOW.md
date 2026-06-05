@@ -5,6 +5,8 @@
 - **Tài liệu dùng chung (Luôn có thể truy xuất):** Bất cứ khi nào cần tương tác
   với `harness.db`, Agent luôn được phép đọc `_harness/03-CLI_REFERENCE.md` để
   lấy cú pháp.
+- **Skill (nạp on-demand):** KHÔNG đọc trước toàn bộ `_harness/skills/*`. Ở GĐ2,
+  quét registry `_harness/04-SKILLS.md` và chỉ đọc file skill khớp trigger.
 - **Tiny Lane:** ~2,000 tokens. Chỉ đọc `00-AGENTS.md`, intake docs, matrix
   query, và file cần sửa.
 - **Normal Lane:** ~5,000 tokens. Đọc thêm product/story docs liên quan,
@@ -56,6 +58,9 @@
     story liên quan TRƯỚC khi sửa.
   - `IF` phát hiện doc/record cũ, mâu thuẫn, hoặc lặp lại nhầm lẫn: Ghi
     `friction` (GĐ5) và cân nhắc thêm backlog.
+  - `IF` `Type`/`Lane`/bối cảnh khớp một dòng trong registry
+    `_harness/04-SKILLS.md`: Nạp đúng file skill đó và chạy theo các bước của
+    skill.
 - **Xử lý theo Input Type (DOCS FIRST):**
   - `IF [Type == New spec]`: Coi spec là _input material_, KHÔNG giữ làm spec
     sống. Xé nhỏ vào `docs/product/*` và tạo candidate epics/stories +
@@ -149,6 +154,9 @@
 ## GIAI ĐOẠN 6: GROWTH (Tiến hóa)
 
 - `IF` [Có Friction hoặc thiếu capability]: Thêm vào Backlog qua CLI.
+- `IF` [Friction #4 — bước thủ công lặp lại]: Cân nhắc tạo skill mới từ
+  `_harness/skills/_TEMPLATE.md` và đăng ký vào `_harness/04-SKILLS.md` (đây là
+  một _Harness Delta_).
 - **Backlog Protocol:** BẮT BUỘC dùng `--predicted "<kết quả dự đoán>"`. Khi
   đóng ticket dùng `--outcome "<thực tế>"`. (Risk chỉ được chọn `tiny`,
   `normal`, `high-risk`).

@@ -16,6 +16,9 @@ thành thay đổi an toàn.
   (intake, story, quyết định, trace) PHẢI lưu bằng SQLite (`harness.db`) thông
   qua CLI. BẮT BUỘC tra cứu `_harness/03-CLI_REFERENCE.md` để biết cú pháp và
   tham số chuẩn xác của mọi lệnh `harness-cli`.
+- **Skill (procedure kích hoạt):** `_harness/04-SKILLS.md` là bộ procedure
+  mô-đun nạp theo trigger ở GĐ2 cho các tác vụ lặp lại; entrypoint thực thi vẫn
+  là `_harness/01-WORKFLOW.md`.
 - **Tài liệu tham chiếu sâu (khi cần):** `_harness/*` là bộ khung thực thi
   chính. Khi cần chi tiết hơn (mô hình tổng thể, lý do, taxonomy, maturity), tra
   cứu `docs/*` — KHÔNG bắt buộc đọc hết; entrypoint thực thi vẫn là
