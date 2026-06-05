@@ -1,8 +1,8 @@
-# repository-harness
+# repo-harness
 
 Turn any software repo into an agent-ready workspace.
 
-`repository-harness` is a repository-level operating harness for Claude Code,
+`repo-harness` is a repository-level operating harness for Claude Code,
 Codex, Cursor, and other coding agents. It gives agents the missing project
 context they need before they change code: where to start, what the product
 contract says, how risky the work is, what proof is required, and which
@@ -158,5 +158,5 @@ scripts/bin/harness-cli trace \
 From a target project directory, run:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/haketienloc10/harness-lite/main/install.sh?$(date +%s)" | bash
+curl -fsSL "https://raw.githubusercontent.com/haketienloc10/repo-harness/main/install.sh?$(date +%s)" | bash
 ```

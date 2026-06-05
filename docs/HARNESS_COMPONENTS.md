@@ -1,6 +1,6 @@
 # Harness Components
 
-This taxonomy maps the current `repository-harness` repository to two component
+This taxonomy maps the current `repo-harness` repository to two component
 frameworks used by Phase 2 and updated by Phase 3 active observability work:
 
 - Runtime Substrate responsibilities: the 11 responsibility areas the harness

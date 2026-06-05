@@ -1,6 +1,6 @@
 # Harness Maturity Ladder
 
-This ladder defines how `repository-harness` should progress from static agent
+This ladder defines how `repo-harness` should progress from static agent
 instructions to measurable harness improvement.
 
 The levels are intentionally verifiable. A level is achieved only when its
