@@ -97,6 +97,9 @@
   tuyệt đối "Dependency Rule" và "Parse-First Boundary" (Tra cứu tại
   `02-STANDARDS.md`). Bám sát chính xác những gì đã thiết kế trong `execplan.md`
   hoặc `design.md`.
+- **Skill:** `IF [triển khai code logic (normal/high-risk)]`: nạp
+  `skills/tdd-implementation.md` (chu trình interface→RED→GREEN→REFACTOR +
+  coverage ≥ 80%).
 - **[STOP] Cửa ải Kiến trúc:** Trước khi sang Giai đoạn 4, Agent BẮT BUỘC phải
   tự kiểm tra (self-review) mã nguồn vừa viết: Tầng `interface` có gọi thẳng vào
   `database` không? Dữ liệu request đã được parse chưa? Nếu vi phạm, phải tự sửa

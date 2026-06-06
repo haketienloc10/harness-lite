@@ -3,9 +3,8 @@
 Skill là một **procedure mô-đun, kích hoạt theo trigger**, giúp Agent thực thi
 một loại tác vụ lặp lại một cách nhất quán. Skill KHÁC với policy
 (`02-STANDARDS.md`) và KHÁC với tra cứu lệnh (`03-CLI_REFERENCE.md`): skill chỉ
-_điều phối_ các bước
-
-- artifact + bằng chứng sẵn có, KHÔNG nhân bản nội dung của `docs/`.
+_điều phối_ các bước + artifact + bằng chứng sẵn có, KHÔNG nhân bản nội dung của
+`docs/`.
 
 ## 1. Cách nạp Skill (on-demand)
 
@@ -31,9 +30,13 @@ mục cố định: `INPUT` → `STEPS` → `VERIFY` → `ARTIFACTS` → `FRICTI
 
 ## 4. Bảng đăng ký (Registry)
 
-_Chưa có skill nào đăng ký._ Skill mới chỉ thêm khi có procedure NẶNG/ĐẶC THÙ
-mọc từ friction (GĐ6) — KHÔNG seed skill chỉ để kể lại luật đã có trong workflow
-/ `02-STANDARDS.md`. Khi thêm, mỗi dòng map `Trigger → skills/<tên>.md`.
+| Trigger                           | Skill file                     |
+| --------------------------------- | ------------------------------ |
+| `IF [GĐ3: triển khai code logic]` | `skills/tdd-implementation.md` |
+
+> Registry chỉ thêm skill khi có procedure NẶNG/ĐẶC THÙ — KHÔNG seed skill chỉ
+> để kể lại luật đã có trong workflow / `02-STANDARDS.md`. Mỗi dòng map
+> `Trigger → skills/<tên>.md`.
 
 ## 5. Liên hệ Durable Layer (CLI)
 
