@@ -1,6 +1,6 @@
 {
-  "id": "T7-parser-tdd",
-  "title": "Implement parse_duration (code, should trigger tdd-workflow)",
+  "id": "T8-calculator-tdd",
+  "title": "Implement evaluate() arithmetic calculator (branch-rich, TDD)",
   "type": ["new_spec", "spec_slice", "change_request"],
   "lane": "normal",
   "expect": {
@@ -15,7 +15,7 @@
   "code": {
     "src_dir": "src",
     "tests_dir": "tests",
-    "symbol": "parse_duration",
+    "symbol": "evaluate",
     "min_coverage": 80
   },
   "variants": ["withskill", "noskill"]

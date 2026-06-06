@@ -39,7 +39,7 @@ Three layers:
 | `trace_quality`  | best trace reaches the lane's minimum tier (Minimal/Standard/Detailed)| `trace` + TRACE_SPEC |
 | `friction`       | `harness_friction` captured when the task contains friction           | `trace`/`backlog`  |
 | `governance`     | high-risk work has a durable `decision` row **and** a new ADR file     | `decision` + files |
-| `skill_tdd`      | code task: tests pass, **coverage ≥ 80%**, interface present, story proof recorded, trace notes `skill: tdd-workflow` | files + DB |
+| `skill_tdd`      | code task: tests pass (0.25) + **branch coverage ≥ 80%** (0.50) + interface present (0.10) + story proof (0.10) + trace notes `skill: tdd-workflow` (0.05) | files + DB |
 
 A task only spends weight on dimensions it declares in `expect`, so unrelated
 dimensions never penalize it. Per-task **compliance %** is the weighted average
@@ -91,19 +91,20 @@ env vars:
 
 ## Task suite
 
-Lean by design — each task targets a distinct rubric dimension; the three code
-tasks run A/B (with vs. without the skill), so `./run.sh` performs nine runs
-across seven tasks:
+Lean by design — each task targets a distinct rubric dimension; the four code
+tasks run A/B (with vs. without the skill), so `./run.sh` performs twelve runs
+across eight tasks:
 
-| Task               | Lane      | Targets                                               |
-| ------------------ | --------- | ----------------------------------------------------- |
-| `T1-tiny-doc`      | tiny      | classification + Minimal trace                        |
-| `T2-feature-tdd`   | normal    | **TDD skill + coverage (A/B)** — `password_strength`  |
-| `T3-highrisk-auth` | high-risk | governance gate + Detailed trace                      |
-| `T4-normal-change` | normal    | classification + Standard trace                       |
-| `T5-friction`      | normal    | friction capture (references a missing spec)          |
-| `T6-validator-tdd` | normal    | **TDD skill + coverage (A/B)** — `normalize_username` |
-| `T7-parser-tdd`    | normal    | **TDD skill + coverage (A/B)** — `parse_duration`     |
+| Task                | Lane      | Targets                                               |
+| ------------------- | --------- | ----------------------------------------------------- |
+| `T1-tiny-doc`       | tiny      | classification + Minimal trace                        |
+| `T2-feature-tdd`    | normal    | **TDD skill + coverage (A/B)** — `password_strength`  |
+| `T3-highrisk-auth`  | high-risk | governance gate + Detailed trace                      |
+| `T4-normal-change`  | normal    | classification + Standard trace                       |
+| `T5-friction`       | normal    | friction capture (references a missing spec)          |
+| `T6-validator-tdd`  | normal    | **TDD skill + coverage (A/B)** — `normalize_username` |
+| `T7-parser-tdd`     | normal    | **TDD skill + coverage (A/B)** — `parse_duration`     |
+| `T8-calculator-tdd` | normal    | **TDD skill + branch coverage (A/B)** — `evaluate` (branch-rich, hardest) |
 
 Each task is a directory with `task.json` (expected rubric) + `prompt.md` (the
 request given to the agent). The prompts are realistic task requests; the
@@ -121,7 +122,11 @@ get an A/B skill delta.
 
 - Live-agent runs are **non-deterministic**; run a few times and read trends, not
   a single number. The *scorer* is deterministic given a workspace.
-- `skill_tdd` grades mechanically verifiable outcomes (tests pass, coverage,
-  interface symbol present, proof recorded, skill noted in trace). Strict
-  RED-before-GREEN ordering is process, not easily provable post-hoc, so it is
-  not scored directly.
+- `skill_tdd` grades mechanically verifiable outcomes, weighted toward results
+  over process signals: tests pass (0.25) + **branch** coverage vs. threshold
+  (0.50) + interface symbol present (0.10) + story proof recorded (0.10) +
+  skill named in trace (0.05). Branch coverage (not just line coverage) is used
+  so untested edge-case branches actually cost points — that is where a
+  disciplined TDD pass tends to separate from an un-guided one. Strict
+  RED-before-GREEN ordering is process, not provable post-hoc, so it is not
+  scored directly.

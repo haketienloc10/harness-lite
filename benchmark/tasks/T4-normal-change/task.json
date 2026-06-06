@@ -1,7 +1,7 @@
 {
   "id": "T4-normal-change",
   "title": "Normal-lane change request (classification + standard trace)",
-  "type": ["change_request", "maintenance"],
+  "type": ["change_request", "maintenance", "harness_improvement"],
   "lane": "normal",
   "expect": {
     "intake": true,
