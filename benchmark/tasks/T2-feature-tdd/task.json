@@ -1,7 +1,7 @@
 {
   "id": "T2-feature-tdd",
   "title": "Implement password_strength (code, should trigger tdd-workflow)",
-  "type": ["new_spec", "spec_slice"],
+  "type": ["new_spec", "spec_slice", "change_request"],
   "lane": "normal",
   "expect": {
     "intake": true,

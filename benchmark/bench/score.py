@@ -147,7 +147,8 @@ def measure_coverage(
     )
     cov_target = src if os.path.isdir(src) else workspace
     run = subprocess.run(
-        [py, "-m", "coverage", "run", f"--source={cov_target}", "-m", "pytest", tests, "-q"],
+        [py, "-m", "coverage", "run", "--branch", f"--source={cov_target}",
+         "-m", "pytest", tests, "-q"],
         cwd=workspace,
         env=env,
         capture_output=True,
@@ -293,15 +294,18 @@ def _score_skill_tdd(db: str, ws: str, task: dict, w: float, py: str) -> DimScor
     min_cov = float(code.get("min_coverage", 80))
     sub: list[tuple[str, float, float]] = []  # (name, score, weight)
 
+    # Weights emphasise verifiable *outcomes* (tests pass + real branch
+    # coverage) over the weak "did the agent name the skill" proxy. Coverage is
+    # measured with branch tracking, so untested edge-case branches lower it.
     cov = measure_coverage(ws, src_dir, tests_dir, py)
-    sub.append(("tests_pass", 1.0 if cov["tests_pass"] else 0.0, 0.30))
+    sub.append(("tests_pass", 1.0 if cov["tests_pass"] else 0.0, 0.25))
     if cov["coverage"] is None:
         cov_score = 0.0
         cov_detail = "coverage=n/a"
     else:
         cov_score = min(1.0, cov["coverage"] / min_cov)
-        cov_detail = f"coverage={cov['coverage']:.0f}%/{min_cov:.0f}%"
-    sub.append(("coverage", cov_score, 0.30))
+        cov_detail = f"coverage={cov['coverage']:.0f}%/{min_cov:.0f}% (branch)"
+    sub.append(("coverage", cov_score, 0.50))
 
     # Interface present: the required symbol exists in src.
     symbol = code.get("symbol")
@@ -323,7 +327,7 @@ def _score_skill_tdd(db: str, ws: str, task: dict, w: float, py: str) -> DimScor
     # Proof recorded on the story.
     stories = _rows(db, "SELECT unit_proof, evidence FROM story")
     proof_ok = any((s.get("unit_proof") or 0) >= 1 and (s.get("evidence") or "").strip() for s in stories)
-    sub.append(("story_proof", 1.0 if proof_ok else 0.0, 0.15))
+    sub.append(("story_proof", 1.0 if proof_ok else 0.0, 0.10))
 
     # Trace names the skill.
     traces = _rows(db, "SELECT notes, actions_taken FROM trace")
@@ -331,7 +335,7 @@ def _score_skill_tdd(db: str, ws: str, task: dict, w: float, py: str) -> DimScor
         "tdd-workflow" in ((t.get("notes") or "") + (t.get("actions_taken") or "")).lower()
         for t in traces
     )
-    sub.append(("skill_noted", 1.0 if skill_named else 0.0, 0.15))
+    sub.append(("skill_noted", 1.0 if skill_named else 0.0, 0.05))
 
     total = sum(s * wt for _n, s, wt in sub)
     detail = cov_detail + "; " + ", ".join(
