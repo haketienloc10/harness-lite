@@ -8,6 +8,7 @@
 #   ./run.sh                      # run all tasks
 #   ./run.sh --tasks T2-feature-tdd
 #   ./run.sh --timeout 900
+#   ./run.sh --repeat 3           # 3 runs per arm; report shows mean +- spread
 set -euo pipefail
 cd "$(dirname "$0")"
 
