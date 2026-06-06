@@ -1,0 +1,22 @@
+{
+  "id": "T6-validator-tdd",
+  "title": "Implement normalize_username (code, should trigger tdd-workflow)",
+  "type": ["new_spec", "spec_slice"],
+  "lane": "normal",
+  "expect": {
+    "intake": true,
+    "story": true,
+    "story_implemented": true,
+    "trace_min_tier": 2,
+    "decision_record": false,
+    "friction": false,
+    "skill_tdd": true
+  },
+  "code": {
+    "src_dir": "src",
+    "tests_dir": "tests",
+    "symbol": "normalize_username",
+    "min_coverage": 80
+  },
+  "variants": ["withskill", "noskill"]
+}

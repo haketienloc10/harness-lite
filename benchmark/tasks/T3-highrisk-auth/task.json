@@ -1,0 +1,16 @@
+{
+  "id": "T3-highrisk-auth",
+  "title": "High-risk authentication policy change (decision gate)",
+  "type": ["change_request"],
+  "lane": "high_risk",
+  "risk_flags": ["auth"],
+  "expect": {
+    "intake": true,
+    "trace_min_tier": 3,
+    "story": false,
+    "decision_record": true,
+    "friction": false,
+    "skill_tdd": false
+  },
+  "variants": ["default"]
+}

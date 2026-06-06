@@ -1,0 +1,15 @@
+{
+  "id": "T5-friction",
+  "title": "Underspecified task that should surface harness friction",
+  "type": ["new_spec", "spec_slice", "change_request"],
+  "lane": "normal",
+  "expect": {
+    "intake": true,
+    "trace_min_tier": 2,
+    "story": false,
+    "decision_record": false,
+    "friction": true,
+    "skill_tdd": false
+  },
+  "variants": ["default"]
+}
