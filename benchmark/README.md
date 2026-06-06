@@ -91,16 +91,19 @@ env vars:
 
 ## Task suite
 
-Lean by design — five tasks, each targeting a distinct rubric dimension; the
-centerpiece runs A/B:
+Lean by design — each task targets a distinct rubric dimension; the three code
+tasks run A/B (with vs. without the skill), so `./run.sh` performs nine runs
+across seven tasks:
 
-| Task               | Lane      | Targets                                   |
-| ------------------ | --------- | ----------------------------------------- |
-| `T1-tiny-doc`      | tiny      | classification + Minimal trace            |
-| `T2-feature-tdd`   | normal    | **TDD skill + coverage (A/B)**, artifacts |
-| `T3-highrisk-auth` | high-risk | governance gate + Detailed trace          |
-| `T4-normal-change` | normal    | classification + Standard trace           |
-| `T5-friction`      | normal    | friction capture (references a missing spec) |
+| Task               | Lane      | Targets                                               |
+| ------------------ | --------- | ----------------------------------------------------- |
+| `T1-tiny-doc`      | tiny      | classification + Minimal trace                        |
+| `T2-feature-tdd`   | normal    | **TDD skill + coverage (A/B)** — `password_strength`  |
+| `T3-highrisk-auth` | high-risk | governance gate + Detailed trace                      |
+| `T4-normal-change` | normal    | classification + Standard trace                       |
+| `T5-friction`      | normal    | friction capture (references a missing spec)          |
+| `T6-validator-tdd` | normal    | **TDD skill + coverage (A/B)** — `normalize_username` |
+| `T7-parser-tdd`    | normal    | **TDD skill + coverage (A/B)** — `parse_duration`     |
 
 Each task is a directory with `task.json` (expected rubric) + `prompt.md` (the
 request given to the agent). The prompts are realistic task requests; the
