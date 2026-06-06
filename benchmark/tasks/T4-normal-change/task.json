@@ -1,0 +1,15 @@
+{
+  "id": "T4-normal-change",
+  "title": "Normal-lane change request (classification + standard trace)",
+  "type": ["change_request", "maintenance"],
+  "lane": "normal",
+  "expect": {
+    "intake": true,
+    "trace_min_tier": 2,
+    "story": false,
+    "decision_record": false,
+    "friction": false,
+    "skill_tdd": false
+  },
+  "variants": ["default"]
+}

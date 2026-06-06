@@ -1,0 +1,15 @@
+{
+  "id": "T1-tiny-doc",
+  "title": "Trivial documentation copy edit",
+  "type": ["maintenance", "harness_improvement"],
+  "lane": "tiny",
+  "expect": {
+    "intake": true,
+    "trace_min_tier": 1,
+    "story": false,
+    "decision_record": false,
+    "friction": false,
+    "skill_tdd": false
+  },
+  "variants": ["default"]
+}
