@@ -30,9 +30,9 @@ mục cố định: `INPUT` → `STEPS` → `VERIFY` → `ARTIFACTS` → `FRICTI
 
 ## 4. Bảng đăng ký (Registry)
 
-| Trigger                           | Skill file                     |
-| --------------------------------- | ------------------------------ |
-| `IF [GĐ3: triển khai code logic]` | `skills/tdd-implementation.md` |
+| Trigger                           | Skill file               |
+| --------------------------------- | ------------------------ |
+| `IF [GĐ3: triển khai code logic]` | `skills/tdd-workflow.md` |
 
 > Registry chỉ thêm skill khi có procedure NẶNG/ĐẶC THÙ — KHÔNG seed skill chỉ
 > để kể lại luật đã có trong workflow / `02-STANDARDS.md`. Mỗi dòng map

@@ -1,4 +1,4 @@
-# Skill: tdd-implementation
+# Skill: tdd-workflow
 
 - **Trigger:** `IF [GĐ3: triển khai code logic]` (bỏ qua nếu docs-only/tiny)
 - **Lane áp dụng:** normal | high-risk
@@ -34,7 +34,7 @@
 ## ARTIFACTS (đầu ra)
 
 - Test mới (theo tier Matrix) + code implementation; cập nhật matrix story
-  (`--unit/--integration/...` = 1/0); trace ghi `"skill: tdd-implementation"`.
+  (`--unit/--integration/...` = 1/0); trace ghi `"skill: tdd-workflow"`.
 
 ## FRICTION HOOKS
 
