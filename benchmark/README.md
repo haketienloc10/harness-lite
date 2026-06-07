@@ -100,9 +100,9 @@ env vars:
 
 ## Task suite
 
-Lean by design — each task targets a distinct rubric dimension; the four code
-tasks run A/B (with vs. without the skill), so `./run.sh` performs twelve runs
-across eight tasks (more with `--repeat`):
+Lean by design — each task targets a distinct rubric dimension; the five code
+tasks run A/B (with vs. without the skill), so `./run.sh` performs fourteen runs
+across nine tasks (more with `--repeat`):
 
 | Task                | Lane      | Targets                                               |
 | ------------------- | --------- | ----------------------------------------------------- |
@@ -113,7 +113,8 @@ across eight tasks (more with `--repeat`):
 | `T5-friction`       | normal    | friction capture (references a missing spec)          |
 | `T6-validator-tdd`  | normal    | **TDD skill + coverage (A/B)** — `normalize_username` |
 | `T7-parser-tdd`     | normal    | **TDD skill + coverage (A/B)** — `parse_duration`     |
-| `T8-calculator-tdd` | normal    | **TDD skill + branch coverage (A/B)** — `evaluate` (branch-rich, hardest) |
+| `T8-calculator-tdd` | normal    | **TDD skill + branch coverage (A/B)** — `evaluate` (branch-rich) |
+| `T9-semver-tdd`     | normal    | **TDD skill + branch coverage (A/B)** — `satisfies` (semver ranges; hidden edge cases, hardest) |
 
 Each task is a directory with `task.json` (expected rubric) + `prompt.md` (the
 request given to the agent). The prompts are realistic task requests; the
