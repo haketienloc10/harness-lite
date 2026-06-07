@@ -34,16 +34,17 @@ kebab-case `động từ-danh từ`.
 
 ## 5. Bảng đăng ký (Registry)
 
-| Trigger                                                      | Skill file                |
-| ------------------------------------------------------------ | ------------------------- |
-| `IF [GĐ3 xong code logic, TRƯỚC khi sang GĐ4]` (normal/high) | `skills/review-3-lens.md` |
+| Trigger                                                      | Skill file                      |
+| ------------------------------------------------------------ | ------------------------------- |
+| `IF [GĐ3 xong code logic, TRƯỚC khi sang GĐ4]` (normal/high) | `skills/quality-gate-review.md` |
 
 > Chỉ thêm dòng khi procedure NẶNG/ĐẶC THÙ đổi được hành vi. Map
 > `Trigger → skills/<tên>.md`.
 
 ## 6. Durable Layer (CLI)
 
-- Trace (GĐ5): nêu skill ở `--actions`/`--notes` (vd `"skill: review-3-lens"`).
+- Trace (GĐ5): nêu skill ở `--actions`/`--notes` (vd
+  `"skill: quality-gate-review"`).
 - Finding `blocking` → `backlog` (GĐ6) với `--predicted`.
 - Lỗi thật → `--friction` quy về 1 trong 11 Responsibilities
   (`docs/HARNESS_COMPONENTS.md`).

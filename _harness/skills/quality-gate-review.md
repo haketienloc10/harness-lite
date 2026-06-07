@@ -1,4 +1,4 @@
-# Skill: review-3-lens
+# Skill: quality-gate-review
 
 - **Trigger:** `IF [GĐ3 xong code logic, TRƯỚC khi sang GĐ4]` (bỏ qua nếu
   docs-only/tiny).
@@ -46,7 +46,7 @@ sub-agent song song); nếu tuần tự, KHÔNG để lens trước dẫn dắt 
 ## ARTIFACTS
 
 - Khối review (3 verdict + finding list) → trace GĐ5 `--notes`; ghi
-  `"skill: review-3-lens"` ở `--actions`/`--notes`.
+  `"skill: quality-gate-review"` ở `--actions`/`--notes`.
 - Finding `blocking` hoãn sửa → 1 `backlog` item (`--predicted`).
 - Lỗi thật/luật thiếu →
   `--friction "... Attribution: <1 trong 11 Responsibilities>."`.
@@ -61,4 +61,4 @@ sub-agent song song); nếu tuần tự, KHÔNG để lens trước dẫn dắt 
 - 3 lens đều có verdict.
 - 0 finding `blocking` tồn đọng.
 - `story verify <ID>` đã chạy + đã đọc log.
-- Trace GĐ5 ghi `"skill: review-3-lens"`.
+- Trace GĐ5 ghi `"skill: quality-gate-review"`.

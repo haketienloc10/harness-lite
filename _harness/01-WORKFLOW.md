@@ -100,11 +100,11 @@
   (naming/coupling gọn, test theo Test Matrix). Kiểm chứng độc lập để cho Cửa ải
   Review.
 - **[STOP] Cửa ải Review (GĐ3→GĐ4):** Trước khi sang Giai đoạn 4, Agent BẮT BUỘC
-  nạp và chạy skill `skills/review-3-lens.md` — một vòng review độc lập 3 lens
-  (Quality&Architecture / Security&Risk / Maintainability&Proof). KHÔNG sang GĐ4
-  sign-off (đánh proof `1`) khi còn finding `blocking` chưa xử lý: hoặc sửa code
-  rồi `story verify` lại pass, hoặc ghi backlog (GĐ6). Xem hợp đồng + cách nạp
-  skill ở `_harness/04-SKILLS.md`.
+  nạp và chạy skill `skills/quality-gate-review.md` — một vòng review độc lập 3
+  lens (Quality&Architecture / Security&Risk / Maintainability&Proof). KHÔNG
+  sang GĐ4 sign-off (đánh proof `1`) khi còn finding `blocking` chưa xử lý: hoặc
+  sửa code rồi `story verify` lại pass, hoặc ghi backlog (GĐ6). Xem hợp đồng +
+  cách nạp skill ở `_harness/04-SKILLS.md`.
 
 ---
 
