@@ -74,15 +74,34 @@ def cmd_run(args):
         return 1
     run_dir = args.run_dir or os.path.join(RUNS_DIR, time.strftime("%Y%m%d-%H%M%S"))
     os.makedirs(run_dir, exist_ok=True)
+    repeat = max(1, args.repeat)
     records = []
     for task in tasks:
         for variant in task["variants"]:
-            print(f">>> {task['id']} [{variant}] ...", file=sys.stderr)
-            run = run_task_variant(REPO_ROOT, task, variant, run_dir, args.timeout)
-            score = score_run(run["workspace"], task, variant, py=py)
-            records.append({"task_id": task["id"], "variant": variant, "run": run, "score": score})
+            for rep in range(1, repeat + 1):
+                tag = f" rep {rep}/{repeat}" if repeat > 1 else ""
+                print(f">>> {task['id']} [{variant}]{tag} ...", file=sys.stderr)
+                run = run_task_variant(REPO_ROOT, task, variant, run_dir, args.timeout, rep=rep)
+                score = score_run(run["workspace"], task, variant, py=py)
+                records.append({"task_id": task["id"], "variant": variant, "rep": rep,
+                                "run": run, "score": score})
     write_outputs(records, run_dir)
     return 0
+
+
+def _iter_workspaces(variant_dir: str):
+    """Yield (rep, workspace_path) under a variant dir, supporting both the
+    repeat layout (`<variant>/r<k>/workspace`) and the legacy single-run
+    layout (`<variant>/workspace`)."""
+    direct = os.path.join(variant_dir, "workspace")
+    if os.path.isdir(direct):
+        yield 1, direct
+        return
+    for sub in sorted(os.listdir(variant_dir)):
+        ws = os.path.join(variant_dir, sub, "workspace")
+        if os.path.isdir(ws):
+            rep = int(sub[1:]) if sub.startswith("r") and sub[1:].isdigit() else 1
+            yield rep, ws
 
 
 def cmd_score(args):
@@ -96,12 +115,14 @@ def cmd_score(args):
         if not os.path.isdir(tdir) or task_id not in tasks:
             continue
         for variant in sorted(os.listdir(tdir)):
-            ws = os.path.join(tdir, variant, "workspace")
-            if not os.path.isdir(ws):
+            vdir = os.path.join(tdir, variant)
+            if not os.path.isdir(vdir):
                 continue
-            score = score_run(ws, tasks[task_id], variant, py=py)
-            records.append({"task_id": task_id, "variant": variant,
-                            "run": {"ran": True, "returncode": 0, "workspace": ws}, "score": score})
+            for rep, ws in _iter_workspaces(vdir):
+                score = score_run(ws, tasks[task_id], variant, py=py)
+                records.append({"task_id": task_id, "variant": variant, "rep": rep,
+                                "run": {"ran": True, "returncode": 0, "workspace": ws},
+                                "score": score})
     if not records:
         print("No scorable workspaces found under run dir.", file=sys.stderr)
         return 1
@@ -117,6 +138,8 @@ def main(argv=None):
     pr.add_argument("--tasks", help="comma-separated task ids (default: all)")
     pr.add_argument("--run-dir", help="output dir (default: benchmark/runs/<ts>)")
     pr.add_argument("--timeout", type=int, default=600, help="per-run timeout seconds")
+    pr.add_argument("--repeat", type=int, default=1,
+                    help="runs per task+variant; report shows mean +- spread (default: 1)")
     pr.add_argument("--py", help="python with pytest+coverage for scoring (default: current)")
     pr.set_defaults(func=cmd_run)
 

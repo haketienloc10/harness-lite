@@ -154,9 +154,9 @@ def run_codex(workspace: str, prompt: str, timeout: int) -> dict[str, Any]:
 
 
 def run_task_variant(
-    repo_root: str, task: dict, variant: str, run_dir: str, timeout: int
+    repo_root: str, task: dict, variant: str, run_dir: str, timeout: int, rep: int = 1
 ) -> dict[str, Any]:
-    workspace = os.path.join(run_dir, task["id"], variant, "workspace")
+    workspace = os.path.join(run_dir, task["id"], variant, f"r{rep}", "workspace")
     build_workspace(repo_root, workspace, variant)
     ok, init_log = init_durable_layer(workspace)
     with open(os.path.join(workspace, ".bench", "init.log"), "w", encoding="utf-8") as fh:

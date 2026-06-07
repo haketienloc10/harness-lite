@@ -8,7 +8,8 @@ It answers two questions with numbers:
 1. **Does an agent that follows the Harness produce correct durable records and
    artifacts?** (classification, traces, decisions, friction capture)
 2. **Does the `tdd-workflow` skill help?** — by running the same code task with
-   the skill available vs. stripped, and reporting the **skill delta**.
+   the skill available vs. stripped, and reporting the **skill delta**, isolated
+   on the `skill_tdd` sub-score (the only dimension the skill targets).
 
 This directory is standalone tooling. It does **not** modify `_harness/`,
 `docs/`, the `harness-cli` binary, or `harness.db`.
@@ -63,13 +64,21 @@ cd benchmark
 ./run.sh                          # all tasks, live agent, then score + report
 ./run.sh --tasks T2-feature-tdd   # just the TDD A/B centerpiece
 ./run.sh --timeout 900            # longer per-task budget (default 600s)
+./run.sh --repeat 3               # 3 runs per arm; mean +- spread (averages out
+                                  #   run-to-run agent variance)
 ```
+
+Live-agent runs vary from run to run. `--repeat N` runs each task+variant `N`
+times and the report shows the **mean (± sample SD)** per arm, so a one-off flip
+(e.g. the agent classifying a task differently on one run) doesn't masquerade as
+a skill effect. Recommended: `--repeat 3` or more when you care about the delta.
 
 Output goes to `benchmark/runs/<timestamp>/`:
 
 - `report.md` — human-readable scorecards + headline + skill delta (also printed)
 - `result.json` — machine-readable scores
-- `<task>/<variant>/workspace/` — exactly what the agent produced (inspectable)
+- `<task>/<variant>/r<k>/workspace/` — exactly what the agent produced (one dir
+  per repeat; inspectable)
 
 ### Re-score without re-running the agent (deterministic)
 
@@ -93,7 +102,7 @@ env vars:
 
 Lean by design — each task targets a distinct rubric dimension; the four code
 tasks run A/B (with vs. without the skill), so `./run.sh` performs twelve runs
-across eight tasks:
+across eight tasks (more with `--repeat`):
 
 | Task                | Lane      | Targets                                               |
 | ------------------- | --------- | ----------------------------------------------------- |
@@ -120,8 +129,18 @@ get an A/B skill delta.
 
 ## Caveats
 
-- Live-agent runs are **non-deterministic**; run a few times and read trends, not
-  a single number. The *scorer* is deterministic given a workspace.
+- Live-agent runs are **non-deterministic**; use `--repeat N` and read the mean
+  (± SD), not a single number. The *scorer* is deterministic given a workspace.
+- The **skill delta is isolated on `skill_tdd`** (the only dimension the skill
+  targets). The table also shows a *Compliance Δ (ref)*, but treat it as
+  reference only: it includes dimensions like `classification` whose run-to-run
+  variance is unrelated to the skill and can flip its sign on a single run.
+- A capable agent often writes thorough tests and hits full branch coverage even
+  without the skill; when that happens the measured delta collapses toward the
+  `skill_noted` term (≈ 0.05). That is a real finding, not a bug — on easy,
+  well-specified tasks the skill mainly affects *whether the agent records* using
+  TDD, not code quality. To see a quality delta, use harder tasks and/or a weaker
+  model (`BENCH_CODEX_MODEL`).
 - `skill_tdd` grades mechanically verifiable outcomes, weighted toward results
   over process signals: tests pass (0.25) + **branch** coverage vs. threshold
   (0.50) + interface symbol present (0.10) + story proof recorded (0.10) +
