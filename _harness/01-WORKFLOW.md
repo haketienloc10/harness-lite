@@ -5,6 +5,8 @@
 - **Tài liệu dùng chung (Luôn có thể truy xuất):** Bất cứ khi nào cần tương tác
   với `harness.db`, Agent luôn được phép đọc `_harness/03-CLI_REFERENCE.md` để
   lấy cú pháp.
+- **Skill (nạp on-demand):** KHÔNG preload `skills/*`. Tới giai đoạn có trigger
+  khớp trong registry `_harness/04-SKILLS.md`, mới đọc ĐÚNG file skill đó.
 - **Tiny Lane:** ~2,000 tokens. Chỉ đọc `00-AGENTS.md`, intake docs, matrix
   query, và file cần sửa.
 - **Normal Lane:** ~5,000 tokens. Đọc thêm product/story docs liên quan,
@@ -92,10 +94,17 @@
   tuyệt đối "Dependency Rule" và "Parse-First Boundary" (Tra cứu tại
   `02-STANDARDS.md`). Bám sát chính xác những gì đã thiết kế trong `execplan.md`
   hoặc `design.md`.
-- **[STOP] Cửa ải Kiến trúc:** Trước khi sang Giai đoạn 4, Agent BẮT BUỘC phải
-  tự kiểm tra (self-review) mã nguồn vừa viết: Tầng `interface` có gọi thẳng vào
-  `database` không? Dữ liệu request đã được parse chưa? Nếu vi phạm, phải tự sửa
-  code ngay.
+- **Vừa code vừa giữ chuẩn (shift-left):** trong lúc viết, code theo ba ràng
+  buộc — _Quality_ (Dependency Rule, Parse-First, đúng `design.md`), _Security_
+  (validate input từ biên, KHÔNG lộ secret/credential, để ý Hard Gate), và
+  _Maintainability_ (naming/coupling gọn, test theo Test Matrix). Đây là phòng
+  ngừa rẻ; phần kiểm chứng độc lập dành cho Cửa ải Review bên dưới.
+- **[STOP] Cửa ải Review (GĐ3→GĐ4):** Trước khi sang Giai đoạn 4, Agent BẮT BUỘC
+  nạp và chạy skill `skills/review-3-lens.md` — một vòng review độc lập 3 lens
+  (Quality&Architecture / Security&Risk / Maintainability&Proof). KHÔNG sang GĐ4
+  sign-off (đánh proof `1`) khi còn finding `blocking` chưa xử lý: hoặc sửa code
+  rồi `story verify` lại pass, hoặc ghi backlog (GĐ6). Xem hợp đồng + cách nạp
+  skill ở `_harness/04-SKILLS.md`.
 
 ---
 

@@ -20,6 +20,9 @@ thành thay đổi an toàn.
   chính. Khi cần chi tiết hơn (mô hình tổng thể, lý do, taxonomy, maturity), tra
   cứu `docs/*` — KHÔNG bắt buộc đọc hết; entrypoint thực thi vẫn là
   `_harness/01-WORKFLOW.md`.
+- **Skill chuyên biệt (nạp on-demand):** `_harness/04-SKILLS.md` là hợp đồng +
+  bảng đăng ký skill. KHÔNG preload; chỉ nạp file skill khi trigger khớp ở đúng
+  giai đoạn (xem ĐỊNH MỨC TOKEN trong `01-WORKFLOW.md`).
 
 ## 2. Đầu ra của một tác vụ
 
