@@ -46,8 +46,6 @@ deterministic sections.
    scripts/bin/harness-cli knowledge check
    ```
 
-5. Commit `docs/KNOWLEDGE_INDEX.md`.
-
 ## Done when
 
 `harness-cli knowledge check` is green, Prettier is clean, Purpose and Key
