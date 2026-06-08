@@ -31,13 +31,14 @@ sub-agent song song); nếu tuần tự, KHÔNG để lens trước dẫn dắt 
    Input biên chưa validate? Secret/credential lộ trong code/log? Hard Gate
    THIẾU decision record (`docs/decisions/NNNN-*.md`)?
 3. **Lens 3 — Maintainability & Proof:** thiếu test tier Test Matrix cho hành vi
-   mới? Proof lệch claim? Naming/coupling/độ phức tạp cản phiên sau? Thiếu log
-   JSON theo Observability Contract?
+   mới? Thiếu test negative/failure path? Proof lệch claim? Naming/coupling/độ
+   phức tạp cản phiên sau? Thiếu log JSON theo Observability Contract?
 
 ## VERIFY
 
-- Chạy `harness-cli story verify <ID>` và ĐỌC log trước khi chốt Lens 3 (cấm suy
-  diễn — Cửa ải Bằng chứng GĐ4).
+- Chạy `harness-cli story verify <ID>` và ĐỌC log trước khi chốt Lens 3 (theo
+  Cửa ải Bằng chứng GĐ4). Verify hợp nhất tại đây; GĐ4 tái dùng log nếu code
+  chưa đổi.
 - Mỗi finding `blocking`: HOẶC sửa code rồi `story verify` lại pass, HOẶC
   `harness-cli backlog add --predicted "<tác động>"`.
 - **GATE:** còn finding `blocking` chưa xử lý → CẤM đánh proof `1` / CẤM sang
@@ -53,8 +54,8 @@ sub-agent song song); nếu tuần tự, KHÔNG để lens trước dẫn dắt 
 
 ## FRICTION HOOKS
 
-- `IF [phải suy đoán luật/nguồn-sự-thật thiếu]` HOẶC `[lỗi cùng loại lặp lại]`:
-  friction (GĐ5) + backlog (GĐ6).
+- Theo trigger friction GĐ5 (đặc biệt: phải suy đoán luật/nguồn-sự-thật thiếu,
+  lỗi cùng loại lặp lại) → friction (GĐ5) + backlog (GĐ6).
 
 ## EXIT
 
