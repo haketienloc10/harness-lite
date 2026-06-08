@@ -7,9 +7,10 @@ use thiserror::Error;
 
 use crate::application::{
     BacklogAddInput, BacklogCloseInput, BrownfieldImportResult, DecisionAddInput, HarnessContext,
-    HarnessService, InitResult, IntakeInput, MigrateResult, QueryTable, StoryAddInput,
-    StoryUpdateInput, TraceInput,
+    HarnessService, InitResult, IntakeInput, KnowledgeService, MigrateResult, QueryTable,
+    StoryAddInput, StoryUpdateInput, TraceInput,
 };
+use crate::domain::knowledge;
 use crate::domain::{
     parse_optional_integer, BacklogRecord, BoolFlag, CsvList, DecisionRecord, FrictionRecord,
     HarnessStats, InputType, IntakeRecord, RiskLane, StoryMatrixRecord, TraceRecord,
@@ -43,6 +44,22 @@ enum Command {
     Trace(TraceArgs),
     /// Query harness data.
     Query(QueryArgs),
+    /// Generate or verify the repository Knowledge Index.
+    Knowledge(KnowledgeArgs),
+}
+
+#[derive(Args, Debug)]
+struct KnowledgeArgs {
+    #[command(subcommand)]
+    action: KnowledgeAction,
+}
+
+#[derive(Subcommand, Debug)]
+enum KnowledgeAction {
+    /// Create or refresh docs/KNOWLEDGE_INDEX.md (deterministic sections).
+    Scaffold,
+    /// Verify the index is present, current, and fully authored.
+    Check,
 }
 
 #[derive(Args, Debug)]
@@ -257,9 +274,17 @@ pub enum InterfaceError {
     CurrentDir(std::io::Error),
     #[error("query sql requires a SQL statement")]
     EmptySql,
+    #[error("knowledge check failed with {0} problem(s)")]
+    KnowledgeCheckFailed(usize),
 }
 
 pub fn run(cli: Cli) -> Result<(), InterfaceError> {
+    // `knowledge` operates purely on the filesystem; it must not construct the
+    // SQLite-backed HarnessService or require a resolvable harness context.
+    if let Command::Knowledge(args) = cli.command {
+        return run_knowledge(args);
+    }
+
     let service = HarnessService::new(resolve_context()?);
 
     match cli.command {
@@ -375,6 +400,7 @@ pub fn run(cli: Cli) -> Result<(), InterfaceError> {
             })?;
             println!("Trace #{id} recorded.");
         }
+        Command::Knowledge(_) => unreachable!("handled before service construction"),
         Command::Query(args) => match args.view {
             QueryView::Matrix => print_matrix(&service.query_matrix()?),
             QueryView::Backlog => print_backlog(&service.query_backlog()?),
@@ -392,6 +418,35 @@ pub fn run(cli: Cli) -> Result<(), InterfaceError> {
         },
     }
 
+    Ok(())
+}
+
+fn run_knowledge(args: KnowledgeArgs) -> Result<(), InterfaceError> {
+    let service = KnowledgeService::new(resolve_repo_root()?);
+    match args.action {
+        KnowledgeAction::Scaffold => {
+            let result = service.scaffold()?;
+            let verb = if result.created {
+                "Created"
+            } else {
+                "Refreshed"
+            };
+            println!("{verb} {}", result.path.display());
+            println!("Fill the Purpose and Key Concepts blocks, then run: harness knowledge check");
+        }
+        KnowledgeAction::Check => {
+            let problems = service.check()?;
+            if problems.is_empty() {
+                println!("Knowledge Index OK: {}", knowledge::INDEX_PATH);
+            } else {
+                eprintln!("Knowledge Index has {} problem(s):", problems.len());
+                for problem in &problems {
+                    eprintln!("  - {problem}");
+                }
+                return Err(InterfaceError::KnowledgeCheckFailed(problems.len()));
+            }
+        }
+    }
     Ok(())
 }
 
@@ -442,11 +497,15 @@ fn print_migrate_result(result: MigrateResult) {
     }
 }
 
+fn resolve_repo_root() -> Result<PathBuf, InterfaceError> {
+    match env::var_os("HARNESS_REPO_ROOT") {
+        Some(path) => Ok(PathBuf::from(path)),
+        None => env::current_dir().map_err(InterfaceError::CurrentDir),
+    }
+}
+
 fn resolve_context() -> Result<HarnessContext, InterfaceError> {
-    let repo_root = match env::var_os("HARNESS_REPO_ROOT") {
-        Some(path) => PathBuf::from(path),
-        None => env::current_dir().map_err(InterfaceError::CurrentDir)?,
-    };
+    let repo_root = resolve_repo_root()?;
     let db_path = env::var_os("HARNESS_DB")
         .map(PathBuf::from)
         .unwrap_or_else(|| repo_root.join("harness.db"));

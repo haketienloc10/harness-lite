@@ -34,10 +34,11 @@ kebab-case `động từ-danh từ`.
 
 ## 5. Bảng đăng ký (Registry)
 
-| Trigger                                                                                       | Skill file                      |
-| --------------------------------------------------------------------------------------------- | ------------------------------- |
-| `IF [GĐ3, TRƯỚC khi viết code logic, task khóa-behavior]` (normal/high; bỏ tiny/UI/prototype) | `skills/tdd-red-green.md`       |
-| `IF [GĐ3 xong code logic, TRƯỚC khi sang GĐ4]` (normal/high)                                  | `skills/quality-gate-review.md` |
+| Trigger                                                                                       | Skill file                           |
+| --------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `IF [GĐ3, TRƯỚC khi viết code logic, task khóa-behavior]` (normal/high; bỏ tiny/UI/prototype) | `skills/tdd-red-green.md`            |
+| `IF [GĐ3 xong code logic, TRƯỚC khi sang GĐ4]` (normal/high)                                  | `skills/quality-gate-review.md`      |
+| `IF [tạo/làm mới docs/KNOWLEDGE_INDEX.md, hoặc knowledge check báo lỗi]` (mọi lane; GĐ2/GĐ6)  | `skills/generate-knowledge-index.md` |
 
 > Chỉ thêm dòng khi procedure NẶNG/ĐẶC THÙ đổi được hành vi. Map
 > `Trigger → skills/<tên>.md`.
