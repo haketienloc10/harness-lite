@@ -30,7 +30,6 @@ sinh tất định + phần NGỮ NGHĨA (Purpose, Key Concepts) do người/age
    1 dòng.
 3. **FORMAT:** chạy `npx prettier --write docs/KNOWLEDGE_INDEX.md` (repo dùng
    `proseWrap: always`). Re-scaffold giữ nguyên nội dung đã soạn, an toàn.
-4. **COMMIT:** `git add docs/KNOWLEDGE_INDEX.md`.
 
 ## VERIFY (bằng chứng cơ học)
 
@@ -51,5 +50,5 @@ sinh tất định + phần NGỮ NGHĨA (Purpose, Key Concepts) do người/age
 
 ## EXIT (tiêu chí xong)
 
-- `knowledge check` xanh, prettier pass, file đã commit; Purpose + Key Concepts
+- `knowledge check` xanh, prettier pass, file đã tạo/thay đổi; Purpose + Key Concepts
   do người soạn, mọi mục cấu trúc có mô tả.
