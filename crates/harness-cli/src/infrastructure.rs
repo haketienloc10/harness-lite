@@ -1065,13 +1065,20 @@ impl KnowledgeWorkspace {
                 Some(name) => name.to_owned(),
                 None => continue,
             };
-            let is_dir = entry.file_type()?.is_dir();
+            // `DirEntry::file_type` does not follow symlinks, so a symlink to a
+            // directory would otherwise be reported as a file. Resolve through
+            // the path so a linked directory is listed with a trailing slash.
+            let is_dir = entry.path().is_dir();
 
             // Every top-level name is a detection signal (dotfiles included).
             signals.insert(name.clone());
 
             // The structure listing skips hidden, build, and local-db noise.
-            if !is_hidden(&name) && !is_ignored_dir(&name) && !is_db_artifact(&name) {
+            // `is_ignored_dir` only applies to directories so a regular file
+            // that happens to share a name (e.g. `build`) is still listed.
+            let ignored =
+                is_hidden(&name) || (is_dir && is_ignored_dir(&name)) || is_db_artifact(&name);
+            if !ignored {
                 entries.push(TopLevelEntry { name, is_dir });
             }
         }
@@ -1508,5 +1515,43 @@ implemented
         assert!(inputs.technologies.contains(&"Cargo Workspace".to_owned()));
         assert!(inputs.technologies.contains(&"SQLite".to_owned()));
         assert!(inputs.technologies.contains(&"Prettier".to_owned()));
+    }
+
+    #[test]
+    fn gather_lists_files_named_like_ignored_dirs() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let repo_root = temp_dir.path().join("demo");
+        fs::create_dir_all(repo_root.join("target")).unwrap();
+        // A regular file sharing an ignored directory name must still be listed.
+        fs::write(repo_root.join("build"), "#!/bin/sh\n").unwrap();
+        fs::write(repo_root.join("Cargo.toml"), "[package]\nname=\"d\"\n").unwrap();
+
+        let workspace = KnowledgeWorkspace::new(repo_root);
+        let inputs = workspace.gather().unwrap();
+        let names: Vec<&str> = inputs.entries.iter().map(|e| e.name.as_str()).collect();
+
+        assert!(names.contains(&"build"), "file `build` should be listed");
+        assert!(!names.contains(&"target"), "dir `target` should be ignored");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn gather_marks_symlinked_directory_as_dir() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let repo_root = temp_dir.path().join("demo");
+        fs::create_dir_all(repo_root.join("real")).unwrap();
+        fs::write(repo_root.join("Cargo.toml"), "[package]\nname=\"d\"\n").unwrap();
+        std::os::unix::fs::symlink(repo_root.join("real"), repo_root.join("linked")).unwrap();
+
+        let workspace = KnowledgeWorkspace::new(repo_root);
+        let inputs = workspace.gather().unwrap();
+        let linked = inputs
+            .entries
+            .iter()
+            .find(|entry| entry.name == "linked")
+            .expect("symlink should be listed");
+
+        // A symlink pointing at a directory is reported as a directory.
+        assert!(linked.is_dir);
     }
 }

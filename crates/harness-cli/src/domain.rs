@@ -465,6 +465,17 @@ pub mod knowledge {
         check_authored(&mut problems, "Purpose", preserved.purpose.as_deref());
         check_authored(&mut problems, "Key Concepts", preserved.concepts.as_deref());
 
+        // The Technologies section is regenerated, but an empty list still
+        // renders a `TODO` placeholder; flag it so `check` matches the
+        // documented contract (no remaining TODO placeholders).
+        if inputs.technologies.is_empty() {
+            problems.push(
+                "Key Technologies has no detected entries (TODO placeholder). \
+                 Improve detection heuristics or add a recognizable signal file."
+                    .to_owned(),
+            );
+        }
+
         let parsed_names: BTreeSet<String> =
             preserved.structure_descriptions.keys().cloned().collect();
         let current_names: BTreeSet<String> = inputs
@@ -719,6 +730,31 @@ pub mod knowledge {
             });
             let problems = check_index(Some(&authored), &drifted);
             assert!(problems.iter().any(|problem| problem.contains("`docs`")));
+        }
+
+        #[test]
+        fn check_flags_empty_technologies_todo() {
+            let mut preserved = PreservedIndex {
+                purpose: Some("A demo repo.".to_owned()),
+                concepts: Some("Core terms.".to_owned()),
+                ..Default::default()
+            };
+            preserved
+                .structure_descriptions
+                .insert("src".to_owned(), "Source.".to_owned());
+            preserved
+                .structure_descriptions
+                .insert("Cargo.toml".to_owned(), "Manifest.".to_owned());
+
+            // No technologies detected -> render emits a TODO placeholder, so
+            // check must report it even though every authored block is filled.
+            let mut inputs = sample_inputs();
+            inputs.technologies.clear();
+            let authored = render_index(&inputs, &preserved);
+            let problems = check_index(Some(&authored), &inputs);
+            assert!(problems
+                .iter()
+                .any(|problem| problem.contains("Key Technologies")));
         }
     }
 }

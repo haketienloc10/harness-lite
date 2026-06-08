@@ -279,6 +279,12 @@ pub enum InterfaceError {
 }
 
 pub fn run(cli: Cli) -> Result<(), InterfaceError> {
+    // `knowledge` operates purely on the filesystem; it must not construct the
+    // SQLite-backed HarnessService or require a resolvable harness context.
+    if let Command::Knowledge(args) = cli.command {
+        return run_knowledge(args);
+    }
+
     let service = HarnessService::new(resolve_context()?);
 
     match cli.command {
@@ -394,35 +400,7 @@ pub fn run(cli: Cli) -> Result<(), InterfaceError> {
             })?;
             println!("Trace #{id} recorded.");
         }
-        Command::Knowledge(args) => {
-            let service = KnowledgeService::new(resolve_repo_root()?);
-            match args.action {
-                KnowledgeAction::Scaffold => {
-                    let result = service.scaffold()?;
-                    let verb = if result.created {
-                        "Created"
-                    } else {
-                        "Refreshed"
-                    };
-                    println!("{verb} {}", result.path.display());
-                    println!(
-                        "Fill the Purpose and Key Concepts blocks, then run: harness knowledge check"
-                    );
-                }
-                KnowledgeAction::Check => {
-                    let problems = service.check()?;
-                    if problems.is_empty() {
-                        println!("Knowledge Index OK: {}", knowledge::INDEX_PATH);
-                    } else {
-                        eprintln!("Knowledge Index has {} problem(s):", problems.len());
-                        for problem in &problems {
-                            eprintln!("  - {problem}");
-                        }
-                        return Err(InterfaceError::KnowledgeCheckFailed(problems.len()));
-                    }
-                }
-            }
-        }
+        Command::Knowledge(_) => unreachable!("handled before service construction"),
         Command::Query(args) => match args.view {
             QueryView::Matrix => print_matrix(&service.query_matrix()?),
             QueryView::Backlog => print_backlog(&service.query_backlog()?),
@@ -440,6 +418,35 @@ pub fn run(cli: Cli) -> Result<(), InterfaceError> {
         },
     }
 
+    Ok(())
+}
+
+fn run_knowledge(args: KnowledgeArgs) -> Result<(), InterfaceError> {
+    let service = KnowledgeService::new(resolve_repo_root()?);
+    match args.action {
+        KnowledgeAction::Scaffold => {
+            let result = service.scaffold()?;
+            let verb = if result.created {
+                "Created"
+            } else {
+                "Refreshed"
+            };
+            println!("{verb} {}", result.path.display());
+            println!("Fill the Purpose and Key Concepts blocks, then run: harness knowledge check");
+        }
+        KnowledgeAction::Check => {
+            let problems = service.check()?;
+            if problems.is_empty() {
+                println!("Knowledge Index OK: {}", knowledge::INDEX_PATH);
+            } else {
+                eprintln!("Knowledge Index has {} problem(s):", problems.len());
+                for problem in &problems {
+                    eprintln!("  - {problem}");
+                }
+                return Err(InterfaceError::KnowledgeCheckFailed(problems.len()));
+            }
+        }
+    }
     Ok(())
 }
 
