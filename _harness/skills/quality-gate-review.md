@@ -37,7 +37,7 @@ sub-agent song song); nếu tuần tự, KHÔNG để lens trước dẫn dắt 
 ## VERIFY
 
 - Chạy `harness-cli story verify <ID>` và ĐỌC log trước khi chốt Lens 3 (theo
-  Cửa ải Bằng chứng GĐ4). Đây là lần verify hợp nhất; GĐ4 tái dùng log nếu code
+  Cửa ải Bằng chứng GĐ4). Verify hợp nhất tại đây; GĐ4 tái dùng log nếu code
   chưa đổi.
 - Mỗi finding `blocking`: HOẶC sửa code rồi `story verify` lại pass, HOẶC
   `harness-cli backlog add --predicted "<tác động>"`.

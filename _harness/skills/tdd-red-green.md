@@ -8,8 +8,8 @@
 - **Lane:** normal | high-risk (tiny: bỏ qua, dùng verification nhẹ GĐ4).
 - **Giai đoạn:** Mở đầu GĐ3, TRƯỚC Cửa ải `skills/quality-gate-review.md`.
 
-Dùng TDD như công cụ kiểm soát rủi ro, KHÔNG phải nghi thức cho mọi task. Chỉ
-khóa behavior bằng test-first khi test thật sự giảm rủi ro regression.
+Coi TDD là công cụ kiểm soát rủi ro, KHÔNG phải nghi thức cho mọi task. CHỈ khóa
+behavior bằng test-first khi test thật sự giảm rủi ro regression.
 
 ## INPUT (đọc trước khi chạy)
 
@@ -20,32 +20,31 @@ khóa behavior bằng test-first khi test thật sự giảm rủi ro regression
 
 ## STEPS
 
-1. **CLASSIFY:** quyết TDD hay không theo nhóm task ở Trigger. Không chắc → chọn
-   TDD nhẹ thay vì bỏ hẳn. Nếu KHÔNG cần TDD → THOÁT skill, dùng Validation
-   Ladder ở GĐ4; ghi lý do bỏ TDD + rủi ro còn lại ở trace GĐ5.
-2. **CONTRACT (test-first):** ghi ngắn behavior chính, input hợp lệ / không hợp
+1. **CLASSIFY:** Phân loại task theo Trigger: TDD hay không. KHÔNG chắc → chọn
+   TDD nhẹ, đừng bỏ. KHÔNG cần TDD → THOÁT skill, theo Validation Ladder GĐ4;
+   ghi lý do bỏ TDD + rủi ro còn lại ở trace GĐ5.
+2. **CONTRACT (test-first):** Ghi ngắn: behavior chính, input hợp lệ / không hợp
    lệ, edge, failure, invariant không được phá, out-of-scope, test cases dự
-   kiến. Có `validation.md` thì bổ sung vào đó, KHÔNG nhân bản.
-3. **RED:** viết test TRƯỚC, kiểm behavior (KHÔNG kiểm implementation detail),
-   KHÔNG mock chính unit đang test. Chạy bằng test runner trực tiếp (chưa cần
-   `story verify` — GĐ4 mới gắn `--verify`), ĐỌC fail, xác nhận fail vì
-   thiếu/sai implementation (không phải lỗi setup test). Pass ngay → giải thích.
-4. **GREEN:** viết code TỐI THIỂU để pass; không mở rộng scope; không refactor
-   lớn; không sửa test sau khi implement trừ khi test sai requirement (phải ghi
-   rõ lý do). Chạy lại test runner → pass.
-5. **REFACTOR (tùy chọn):** không đổi behavior / public contract ngoài scope.
+   kiến. Có `validation.md` → bổ sung vào đó, KHÔNG nhân bản.
+3. **RED:** Viết test TRƯỚC; kiểm behavior, KHÔNG kiểm implementation detail;
+   KHÔNG mock unit đang test. Chạy test runner trực tiếp (chưa cần
+   `story verify` — GĐ4 mới gắn `--verify`). ĐỌC log fail; xác nhận fail vì
+   thiếu/sai implementation, KHÔNG phải lỗi setup test. Pass ngay → giải thích.
+4. **GREEN:** Viết code TỐI THIỂU để pass. KHÔNG mở rộng scope; KHÔNG refactor
+   lớn; KHÔNG sửa test sau khi implement (trừ khi test sai requirement — ghi rõ
+   lý do). Chạy lại test runner → pass.
+5. **REFACTOR (tùy chọn):** KHÔNG đổi behavior / public contract ngoài scope.
    Chạy lại test; fail → sửa code hoặc rollback refactor.
 
 ## VERIFY
 
-- Bằng chứng inner-loop: log test runner cho thấy fail ở RED → pass ở GREEN/sau
-  REFACTOR (đọc log thật). Hợp nhất proof bằng `harness-cli story verify <ID>`
-  là việc của Cửa ải `quality-gate-review` + GĐ4 — KHÔNG chạy lại ở đây.
-- **GATE:** chưa quan sát RED→GREEN thật → CẤM coi GREEN là xong / CẤM rời inner
-  loop. (Cấm đánh proof `1` / cấm sang GĐ4 do GĐ4 + `quality-gate-review` gác.)
-- Chất lượng test (missing tier, proof lệch claim, mock che bug,
-  negative/failure path): để Lens 3 của `skills/quality-gate-review.md` lo —
-  KHÔNG nhân bản ở đây.
+- ĐỌC log test runner: phải thấy fail ở RED → pass ở GREEN/sau REFACTOR. KHÔNG
+  chạy `harness-cli story verify <ID>` ở đây — Cửa ải `quality-gate-review` +
+  GĐ4 hợp nhất proof.
+- **GATE:** Chưa thấy RED→GREEN thật → CẤM coi GREEN là xong, CẤM rời inner
+  loop. (Proof `1` / sang GĐ4 do GĐ4 + `quality-gate-review` gác.)
+- KHÔNG kiểm chất lượng test ở đây (missing tier, proof lệch claim, mock che
+  bug, negative/failure path) — giao Lens 3 `skills/quality-gate-review.md`.
 
 ## ARTIFACTS
 

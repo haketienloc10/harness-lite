@@ -99,9 +99,9 @@
   biên, KHÔNG lộ secret/credential, để ý Hard Gate), _Maintainability_
   (naming/coupling gọn, test theo Test Matrix). Kiểm chứng độc lập để cho Cửa ải
   Review.
-- **TDD (on-demand):** `IF [task khóa-behavior]`, TRƯỚC khi viết code logic hãy
-  nạp `skills/tdd-red-green.md` (RED → GREEN → REFACTOR). Danh sách nhóm task +
-  ngoại lệ xem Trigger của skill / registry `_harness/04-SKILLS.md`.
+- **TDD (on-demand):** `IF [task khóa-behavior]`: nạp `skills/tdd-red-green.md`
+  (RED → GREEN → REFACTOR) TRƯỚC khi viết code logic. Danh sách nhóm task +
+  ngoại lệ: xem Trigger của skill / registry `_harness/04-SKILLS.md`.
 - **[STOP] Cửa ải Review (GĐ3→GĐ4):** Trước khi sang Giai đoạn 4, Agent BẮT BUỘC
   nạp và chạy skill `skills/quality-gate-review.md` — một vòng review độc lập 3
   lens (Quality&Architecture / Security&Risk / Maintainability&Proof). KHÔNG
