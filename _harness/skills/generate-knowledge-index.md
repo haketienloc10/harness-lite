@@ -50,5 +50,10 @@ sinh tất định + phần NGỮ NGHĨA (Purpose, Key Concepts) do người/age
 
 ## EXIT (tiêu chí xong)
 
-- `knowledge check` xanh, prettier pass, file đã tạo/thay đổi; Purpose + Key Concepts
-  do người soạn, mọi mục cấu trúc có mô tả.
+- `knowledge check` xanh, prettier pass, file đã tạo/thay đổi; Purpose + Key
+  Concepts do người soạn, mọi mục cấu trúc có mô tả.
+
+> **Vì sao làm mới quan trọng (consume ↔ produce):** index này được ĐỌC đầu mỗi
+> tác vụ như bản đồ Orient (xem `00-AGENTS.md` §1 và ĐỊNH MỨC TOKEN ở
+> `01-WORKFLOW.md`). Agent chỉ tin index khi `knowledge check` xanh; nếu lệch
+> thì chạy skill này để làm mới trước khi dựa vào nó.

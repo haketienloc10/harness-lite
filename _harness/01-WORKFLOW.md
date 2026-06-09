@@ -7,8 +7,12 @@
   lấy cú pháp.
 - **Skill (nạp on-demand):** KHÔNG preload `skills/*`. Tới giai đoạn có trigger
   khớp trong registry `_harness/04-SKILLS.md`, mới đọc ĐÚNG file skill đó.
-- **Tiny Lane:** ~2,000 tokens. Chỉ đọc `00-AGENTS.md`, intake docs, matrix
-  query, và file cần sửa.
+- **Tầng nền (MỌI lane, đọc ĐẦU TIÊN):** `docs/KNOWLEDGE_INDEX.md` — bản đồ
+  onboarding cô đọng (ROUTER, không phải nguồn sự thật; xem `00-AGENTS.md` §1).
+  Rẻ hơn crawl `docs/`; dùng nó để chọn đúng file cần đọc tiếp cho lane hiện
+  tại. Nếu `harness-cli knowledge check` lệch → làm mới trước khi tin (GĐ2/GĐ6).
+- **Tiny Lane:** ~2,000 tokens. Đọc `docs/KNOWLEDGE_INDEX.md`, `00-AGENTS.md`,
+  intake docs, matrix query, và file cần sửa.
 - **Normal Lane:** ~5,000 tokens. Đọc thêm product/story docs liên quan,
   architecture (nếu cần đổi cấu trúc), và validation expectations.
 - **High-Risk Lane:** ~10,000 tokens. Đọc toàn bộ intake, architecture, quyết
@@ -18,6 +22,10 @@
 
 ## GIAI ĐOẠN 1: INTAKE (Phân loại)
 
+- **0. Orient (đọc TRƯỚC khi phân loại):** Đọc `docs/KNOWLEDGE_INDEX.md` để nắm
+  Purpose + Top-Level Structure của repo trước khi chọn Type và đếm Risk Flags
+  (hiểu repo giúp phân loại đúng). Nếu `harness-cli knowledge check` đỏ → index
+  cũ; làm mới qua skill `generate-knowledge-index` (xem GĐ2/GĐ6) trước khi tin.
 - **1. Chọn Type:** `New spec`, `Spec slice`, `Change request`,
   `New initiative`, `Maintenance request`, `Harness improvement`.
   - **Map Type → Đích đến (artifact):** `New spec` → `docs/product/*` +

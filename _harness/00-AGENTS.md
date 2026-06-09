@@ -8,6 +8,13 @@ thành thay đổi an toàn.
 - **Harness v0 Scope:** Hệ thống hiện tại cố tình KHÔNG BAO GỒM stack ứng dụng,
   mã nguồn scaffold, hoặc spec dự án nguyên khối. Các thành phần này chỉ xuất
   hiện khi một Story cần đến chúng.
+- **Bản đồ Orient (ĐỌC TRƯỚC — là ROUTER, KHÔNG phải nguồn sự thật):** Luôn mở
+  `docs/KNOWLEDGE_INDEX.md` đầu tiên để định hướng (Purpose, Top-Level
+  Structure, Key Technologies, Key Concepts) và biết đi tiếp vào đâu trong
+  Hierarchy bên dưới. KHI MÂU THUẪN, nguồn trong Hierarchy THẮNG — index không
+  bao giờ ghi đè nguồn bền vững. Tin-nếu-tươi: nếu `harness-cli knowledge check`
+  báo lệch (drift) → coi index là CŨ, nạp skill `generate-knowledge-index`
+  (GĐ2/GĐ6) làm mới trước khi tin.
 - **Hierarchy (Phân cấp Nguồn sự thật):** Spec người dùng -> `docs/product/*` ->
   `docs/stories/*` -> `scripts/bin/harness-cli query matrix` ->
   `docs/decisions/*`. KHÔNG mở rộng một file Spec nguyên khối; hãy cập nhật các
