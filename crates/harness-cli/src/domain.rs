@@ -269,13 +269,35 @@ pub mod knowledge {
 
     const HEADING_PURPOSE: &str = "## Purpose";
     const HEADING_TECHNOLOGIES: &str = "## Key Technologies";
+    const HEADING_HOWTORUN: &str = "## How to Run";
     const HEADING_STRUCTURE: &str = "## Top-Level Structure";
+    const HEADING_SUBDIRS: &str = "## Key Subdirectories";
     const HEADING_CONCEPTS: &str = "## Key Concepts";
+
+    const HOWTORUN_NONE: &str = "No standard build/test commands detected.";
+    const SUBDIRS_NONE: &str = "None.";
 
     /// Signal tokens emitted by infrastructure for technology detection.
     /// Top-level entry names are passed verbatim; computed tokens use these.
     pub const SIGNAL_CARGO_WORKSPACE: &str = "cargo-workspace";
     pub const SIGNAL_RUST_SQLITE: &str = "rust-sqlite";
+
+    /// Framework signals derived from manifest contents (e.g. `dep:react`,
+    /// emitted by infrastructure) mapped to display labels. Order defines
+    /// render order.
+    const FRAMEWORK_SIGNALS: &[(&str, &str)] = &[
+        ("dep:react", "React"),
+        ("dep:next", "Next.js"),
+        ("dep:vue", "Vue"),
+        ("dep:angular", "Angular"),
+        ("dep:svelte", "Svelte"),
+        ("dep:express", "Express"),
+        ("dep:nestjs", "NestJS"),
+        ("dep:django", "Django"),
+        ("dep:flask", "Flask"),
+        ("dep:fastapi", "FastAPI"),
+        ("dep:rails", "Ruby on Rails"),
+    ];
 
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct TopLevelEntry {
@@ -283,11 +305,23 @@ pub mod knowledge {
         pub is_dir: bool,
     }
 
+    /// A build/test/run command derived from a manifest, with a short label.
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct RunCommand {
+        pub command: String,
+        pub label: String,
+    }
+
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct KnowledgeInputs {
         pub repo_name: String,
         pub technologies: Vec<String>,
         pub entries: Vec<TopLevelEntry>,
+        /// Immediate subdirectories of each top-level directory (one level
+        /// deeper than `entries`), addressed by relative path in `name`.
+        pub subdirectories: Vec<TopLevelEntry>,
+        /// Deterministic build/test/run commands derived from manifests.
+        pub commands: Vec<RunCommand>,
     }
 
     #[derive(Debug, Default, Clone, PartialEq, Eq)]
@@ -295,6 +329,7 @@ pub mod knowledge {
         pub purpose: Option<String>,
         pub concepts: Option<String>,
         pub structure_descriptions: BTreeMap<String, String>,
+        pub subdirectory_descriptions: BTreeMap<String, String>,
     }
 
     /// Map a set of signal tokens to a stable, de-duplicated technology list.
@@ -332,6 +367,49 @@ pub mod knowledge {
         if has("go.mod") || has("ext:go") {
             push(&mut technologies, "Go");
         }
+        if has("pom.xml") || has("build.gradle") || has("build.gradle.kts") || has("ext:java") {
+            push(&mut technologies, "Java");
+        }
+        if has("ext:kt") || has("build.gradle.kts") {
+            push(&mut technologies, "Kotlin");
+        }
+        if has("Package.swift") || has("ext:swift") {
+            push(&mut technologies, "Swift");
+        }
+        if has("Gemfile") || has("ext:rb") {
+            push(&mut technologies, "Ruby");
+        }
+        if has("composer.json") || has("ext:php") {
+            push(&mut technologies, "PHP");
+        }
+        if has("ext:cpp") || has("ext:cc") || has("ext:cxx") || has("ext:hpp") {
+            push(&mut technologies, "C++");
+        }
+        if has("ext:c") || has("ext:h") {
+            push(&mut technologies, "C");
+        }
+        if has("ext:cs") || has("ext:csproj") || has("ext:sln") {
+            push(&mut technologies, ".NET");
+        }
+        if has("ext:tf") {
+            push(&mut technologies, "Terraform");
+        }
+        // Node package manager (only meaningful when a package.json is present).
+        if has("package.json") {
+            if has("pnpm-lock.yaml") {
+                push(&mut technologies, "pnpm");
+            } else if has("yarn.lock") {
+                push(&mut technologies, "Yarn");
+            } else if has("package-lock.json") {
+                push(&mut technologies, "npm");
+            }
+        }
+        // Frameworks detected from manifest contents (dep:* signals).
+        for (signal, label) in FRAMEWORK_SIGNALS {
+            if has(signal) {
+                push(&mut technologies, label);
+            }
+        }
         if has(".prettierrc") || has(".prettierignore") {
             push(&mut technologies, "Prettier");
         }
@@ -358,6 +436,7 @@ pub mod knowledge {
             purpose: extract_between(content, PURPOSE_BEGIN, PURPOSE_END),
             concepts: extract_between(content, CONCEPTS_BEGIN, CONCEPTS_END),
             structure_descriptions: parse_structure_descriptions(content),
+            subdirectory_descriptions: parse_entry_descriptions(content, HEADING_SUBDIRS),
         }
     }
 
@@ -370,12 +449,14 @@ pub mod knowledge {
             "> \"Accessed knowledge\": the onboarding map agents read before changing code.\n",
         );
         out.push_str(
-            "> Generated by `harness-cli knowledge`. Top-Level Structure and Key Technologies\n",
+            "> Generated by `harness-cli knowledge`. Key Technologies, How to Run, Top-Level\n",
         );
         out.push_str(
-            "> are regenerated each run; Purpose and Key Concepts are authored and preserved\n",
+            "> Structure and Key Subdirectories are regenerated each run; Purpose, Key Concepts\n",
         );
-        out.push_str("> between the markers.\n\n");
+        out.push_str(
+            "> and per-entry descriptions are authored and preserved between the markers.\n\n",
+        );
 
         out.push_str(HEADING_PURPOSE);
         out.push_str("\n\n");
@@ -400,28 +481,39 @@ pub mod knowledge {
         }
         out.push('\n');
 
+        out.push_str(HEADING_HOWTORUN);
+        out.push_str("\n\n");
+        if inputs.commands.is_empty() {
+            out.push_str(&format!("- {HOWTORUN_NONE}\n"));
+        } else {
+            for command in &inputs.commands {
+                out.push_str(&format!(
+                    "- `{}` {STRUCTURE_SEPARATOR} {}\n",
+                    command.command, command.label
+                ));
+            }
+        }
+        out.push('\n');
+
         out.push_str(HEADING_STRUCTURE);
         out.push_str("\n\n");
         if inputs.entries.is_empty() {
             out.push_str("- TODO: no entries found.\n");
         } else {
-            for entry in &inputs.entries {
-                let display = if entry.is_dir {
-                    format!("{}/", entry.name)
-                } else {
-                    entry.name.clone()
-                };
-                let description = preserved
-                    .structure_descriptions
-                    .get(&entry.name)
-                    .map(String::as_str)
-                    .map(str::trim)
-                    .filter(|value| !value.is_empty())
-                    .unwrap_or(DESC_PLACEHOLDER);
-                out.push_str(&format!(
-                    "- `{display}` {STRUCTURE_SEPARATOR} {description}\n"
-                ));
-            }
+            render_entry_list(&mut out, &inputs.entries, &preserved.structure_descriptions);
+        }
+        out.push('\n');
+
+        out.push_str(HEADING_SUBDIRS);
+        out.push_str("\n\n");
+        if inputs.subdirectories.is_empty() {
+            out.push_str(&format!("- {SUBDIRS_NONE}\n"));
+        } else {
+            render_entry_list(
+                &mut out,
+                &inputs.subdirectories,
+                &preserved.subdirectory_descriptions,
+            );
         }
         out.push('\n');
 
@@ -440,6 +532,31 @@ pub mod knowledge {
         out
     }
 
+    /// Render a `- `path/` — description` list, falling back to the TODO
+    /// placeholder for entries without a preserved description.
+    fn render_entry_list(
+        out: &mut String,
+        entries: &[TopLevelEntry],
+        descriptions: &BTreeMap<String, String>,
+    ) {
+        for entry in entries {
+            let display = if entry.is_dir {
+                format!("{}/", entry.name)
+            } else {
+                entry.name.clone()
+            };
+            let description = descriptions
+                .get(&entry.name)
+                .map(String::as_str)
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .unwrap_or(DESC_PLACEHOLDER);
+            out.push_str(&format!(
+                "- `{display}` {STRUCTURE_SEPARATOR} {description}\n"
+            ));
+        }
+    }
+
     /// Mechanical VERIFY gate: returns a list of problems (empty == healthy).
     pub fn check_index(existing: Option<&str>, inputs: &KnowledgeInputs) -> Vec<String> {
         let mut problems = Vec::new();
@@ -453,7 +570,9 @@ pub mod knowledge {
         for heading in [
             HEADING_PURPOSE,
             HEADING_TECHNOLOGIES,
+            HEADING_HOWTORUN,
             HEADING_STRUCTURE,
+            HEADING_SUBDIRS,
             HEADING_CONCEPTS,
         ] {
             if !has_heading(content, heading) {
@@ -476,32 +595,50 @@ pub mod knowledge {
             );
         }
 
-        let parsed_names: BTreeSet<String> =
-            preserved.structure_descriptions.keys().cloned().collect();
-        let current_names: BTreeSet<String> = inputs
-            .entries
-            .iter()
-            .map(|entry| entry.name.clone())
-            .collect();
+        check_entry_section(
+            &mut problems,
+            "Top-Level Structure",
+            &preserved.structure_descriptions,
+            &inputs.entries,
+        );
+        check_entry_section(
+            &mut problems,
+            "Key Subdirectories",
+            &preserved.subdirectory_descriptions,
+            &inputs.subdirectories,
+        );
+
+        problems
+    }
+
+    /// Compare a parsed description map against the entries currently on disk
+    /// and flag drift (missing/extra) plus any remaining TODO descriptions.
+    fn check_entry_section(
+        problems: &mut Vec<String>,
+        label: &str,
+        descriptions: &BTreeMap<String, String>,
+        entries: &[TopLevelEntry],
+    ) {
+        let parsed_names: BTreeSet<String> = descriptions.keys().cloned().collect();
+        let current_names: BTreeSet<String> =
+            entries.iter().map(|entry| entry.name.clone()).collect();
         for missing in current_names.difference(&parsed_names) {
             problems.push(format!(
-                "Top-Level Structure is stale: missing entry `{missing}`. Run: harness-cli knowledge scaffold"
+                "{label} is stale: missing entry `{missing}`. Run: harness-cli knowledge scaffold"
             ));
         }
         for extra in parsed_names.difference(&current_names) {
             problems.push(format!(
-                "Top-Level Structure lists `{extra}` which no longer exists. Run: harness-cli knowledge scaffold"
+                "{label} lists `{extra}` which no longer exists. Run: harness-cli knowledge scaffold"
             ));
         }
-        for (name, description) in &preserved.structure_descriptions {
+        for (name, description) in descriptions {
             if description.contains("TODO") {
                 problems.push(format!(
-                    "Top-Level Structure entry `{name}` still has a TODO description."
+                    "{label} entry `{name}` still has a TODO description."
                 ));
             }
         }
-
-        problems
     }
 
     fn check_authored(problems: &mut Vec<String>, label: &str, value: Option<&str>) {
@@ -534,13 +671,19 @@ pub mod knowledge {
     }
 
     fn parse_structure_descriptions(content: &str) -> BTreeMap<String, String> {
+        parse_entry_descriptions(content, HEADING_STRUCTURE)
+    }
+
+    /// Parse the `- `name` — description` list under `heading` into a map of
+    /// name (trailing slash trimmed) to description, joining wrapped lines.
+    fn parse_entry_descriptions(content: &str, heading: &str) -> BTreeMap<String, String> {
         let mut descriptions = BTreeMap::new();
         let mut in_section = false;
         let mut current: Option<(String, String)> = None;
 
         for line in content.lines() {
             let trimmed = line.trim();
-            if trimmed == HEADING_STRUCTURE {
+            if trimmed == heading {
                 in_section = true;
                 continue;
             }
@@ -611,6 +754,8 @@ pub mod knowledge {
                         is_dir: false,
                     },
                 ],
+                subdirectories: Vec::new(),
+                commands: Vec::new(),
             }
         }
 
@@ -755,6 +900,113 @@ pub mod knowledge {
             assert!(problems
                 .iter()
                 .any(|problem| problem.contains("Key Technologies")));
+        }
+
+        #[test]
+        fn detects_extended_languages_pm_and_frameworks() {
+            let detected = detect_technologies(&signals(&[
+                "package.json",
+                "ext:ts",
+                "yarn.lock",
+                "dep:react",
+                "dep:next",
+                "go.mod",
+                "pom.xml",
+                "Gemfile",
+                "dep:rails",
+                "ext:tf",
+            ]));
+            for expected in [
+                "Node.js",
+                "TypeScript",
+                "Go",
+                "Java",
+                "Ruby",
+                "Terraform",
+                "Yarn",
+                "React",
+                "Next.js",
+                "Ruby on Rails",
+            ] {
+                assert!(
+                    detected.iter().any(|item| item == expected),
+                    "expected {expected} in {detected:?}"
+                );
+            }
+            // package-lock absent + yarn.lock present -> Yarn, not npm.
+            assert!(!detected.iter().any(|item| item == "npm"));
+        }
+
+        #[test]
+        fn how_to_run_renders_commands_without_todo() {
+            let mut inputs = sample_inputs();
+            inputs.commands = vec![
+                RunCommand {
+                    command: "cargo build".to_owned(),
+                    label: "build".to_owned(),
+                },
+                RunCommand {
+                    command: "cargo test".to_owned(),
+                    label: "test".to_owned(),
+                },
+            ];
+            let rendered = render_index(&inputs, &PreservedIndex::default());
+            assert!(rendered.contains("## How to Run"));
+            assert!(rendered.contains("- `cargo build` — build"));
+            // An empty command list renders a neutral, non-TODO line.
+            let empty = render_index(&sample_inputs(), &PreservedIndex::default());
+            let how_to_run = empty.split("## How to Run").nth(1).unwrap();
+            let how_to_run = how_to_run.split("## ").next().unwrap();
+            assert!(!how_to_run.contains("TODO"));
+        }
+
+        #[test]
+        fn subdirectories_round_trip_and_drift_is_detected() {
+            let mut inputs = sample_inputs();
+            inputs.subdirectories = vec![TopLevelEntry {
+                name: "src/app".to_owned(),
+                is_dir: true,
+            }];
+
+            let mut preserved = PreservedIndex {
+                purpose: Some("A demo repo.".to_owned()),
+                concepts: Some("Core terms.".to_owned()),
+                ..Default::default()
+            };
+            preserved
+                .structure_descriptions
+                .insert("src".to_owned(), "Source.".to_owned());
+            preserved
+                .structure_descriptions
+                .insert("Cargo.toml".to_owned(), "Manifest.".to_owned());
+            preserved
+                .subdirectory_descriptions
+                .insert("src/app".to_owned(), "App package.".to_owned());
+
+            let authored = render_index(&inputs, &preserved);
+            assert!(authored.contains("- `src/app/` — App package."));
+            // Preserved subdir description survives a parse round-trip.
+            let reparsed = parse_preserved(&authored);
+            assert_eq!(
+                reparsed
+                    .subdirectory_descriptions
+                    .get("src/app")
+                    .map(String::as_str),
+                Some("App package.")
+            );
+            assert!(check_index(Some(&authored), &inputs).is_empty());
+
+            // A new subdirectory on disk but absent from the index is drift.
+            let mut drifted = inputs.clone();
+            drifted.subdirectories.push(TopLevelEntry {
+                name: "src/core".to_owned(),
+                is_dir: true,
+            });
+            let problems = check_index(Some(&authored), &drifted);
+            assert!(problems
+                .iter()
+                .any(|problem| problem.contains("Key Subdirectories")
+                    && problem.contains("`src/core`")));
         }
     }
 }
