@@ -12,9 +12,15 @@ thành thay đổi an toàn.
   `docs/KNOWLEDGE_INDEX.md` đầu tiên để định hướng (Purpose, Top-Level
   Structure, Key Technologies, Key Concepts) và biết đi tiếp vào đâu trong
   Hierarchy bên dưới. KHI MÂU THUẪN, nguồn trong Hierarchy THẮNG — index không
-  bao giờ ghi đè nguồn bền vững. Tin-nếu-tươi: nếu `harness-cli knowledge check`
-  báo lệch (drift) → coi index là CŨ, nạp skill `generate-knowledge-index`
-  (GĐ2/GĐ6) làm mới trước khi tin.
+  bao giờ ghi đè nguồn bền vững.
+  - **Giới hạn freshness (QUAN TRỌNG):** `harness-cli knowledge check` chỉ là
+    cổng THÔ — bắt: thiếu section, còn `TODO`, và thêm/bớt mục Ở CẤP REPO-ROOT.
+    Nó KHÔNG bắt: thay đổi bên trong thư mục con, hay Purpose / Key Concepts /
+    mô tả top-level đã lỗi thời (ngữ nghĩa), hay tech-list sai. ⇒ **check ĐỎ =
+    chắc chắn cũ** → làm mới NGAY qua skill `generate-knowledge-index`
+    (GĐ2/GĐ6); **check XANH = CHƯA chắc tươi** → chỉ coi index là điểm orient,
+    luôn ưu tiên Hierarchy, và chủ động làm mới (scaffold + soạn lại
+    Purpose/Concepts) ở GĐ2/GĐ6 khi cấu trúc / tech stack đổi.
 - **Hierarchy (Phân cấp Nguồn sự thật):** Spec người dùng -> `docs/product/*` ->
   `docs/stories/*` -> `scripts/bin/harness-cli query matrix` ->
   `docs/decisions/*`. KHÔNG mở rộng một file Spec nguyên khối; hãy cập nhật các

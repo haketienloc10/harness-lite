@@ -10,7 +10,9 @@
 - **Tầng nền (MỌI lane, đọc ĐẦU TIÊN):** `docs/KNOWLEDGE_INDEX.md` — bản đồ
   onboarding cô đọng (ROUTER, không phải nguồn sự thật; xem `00-AGENTS.md` §1).
   Rẻ hơn crawl `docs/`; dùng nó để chọn đúng file cần đọc tiếp cho lane hiện
-  tại. Nếu `harness-cli knowledge check` lệch → làm mới trước khi tin (GĐ2/GĐ6).
+  tại. `knowledge check` chỉ là cổng THÔ (chi tiết giới hạn freshness ở
+  `00-AGENTS.md` §1): check ĐỎ ⇒ chắc chắn cũ, làm mới ngay; check XANH ⇒ CHƯA
+  chắc tươi, vẫn ưu tiên nguồn Hierarchy.
 - **Tiny Lane:** ~2,000 tokens. Đọc `docs/KNOWLEDGE_INDEX.md`, `00-AGENTS.md`,
   intake docs, matrix query, và file cần sửa.
 - **Normal Lane:** ~5,000 tokens. Đọc thêm product/story docs liên quan,
@@ -24,8 +26,9 @@
 
 - **0. Orient (đọc TRƯỚC khi phân loại):** Đọc `docs/KNOWLEDGE_INDEX.md` để nắm
   Purpose + Top-Level Structure của repo trước khi chọn Type và đếm Risk Flags
-  (hiểu repo giúp phân loại đúng). Nếu `harness-cli knowledge check` đỏ → index
-  cũ; làm mới qua skill `generate-knowledge-index` (xem GĐ2/GĐ6) trước khi tin.
+  (hiểu repo giúp phân loại đúng). `knowledge check` đỏ ⇒ index chắc chắn cũ,
+  làm mới qua skill `generate-knowledge-index` (GĐ2/GĐ6); check xanh KHÔNG bảo
+  đảm tươi (xem giới hạn ở `00-AGENTS.md` §1) — đừng tin mù.
 - **1. Chọn Type:** `New spec`, `Spec slice`, `Change request`,
   `New initiative`, `Maintenance request`, `Harness improvement`.
   - **Map Type → Đích đến (artifact):** `New spec` → `docs/product/*` +

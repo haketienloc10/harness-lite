@@ -39,11 +39,21 @@ code change), framing it as an **Orient router**, not a new source of truth:
   at the start of GĐ1 Intake before Type/Lane classification.
 - `docs/CONTEXT_RULES.md`: add `docs/KNOWLEDGE_INDEX.md` to the Read Shape table
   and add a Retrieval Trigger for "start of any task / onboarding".
-- **Trust-if-fresh:** reuse the existing mechanical gate
-  `harness-cli knowledge check`. If it reports drift, the index is treated as
-  stale and refreshed via the `generate-knowledge-index` skill (already
-  registered for GĐ2/GĐ6) before being relied upon. This links the consume side
-  back to the produce side, closing the loop.
+- **Trust-if-fresh (asymmetric, gate is COARSE):** reuse the existing mechanical
+  gate `harness-cli knowledge check`. Verified against the implementation
+  (`domain::knowledge::check_index` + `infrastructure::gather`), the gate only
+  catches: missing file/sections, remaining `TODO` placeholders, and added/
+  removed **repo-root** entries (compared by name against `fs::read_dir` of the
+  root). It does NOT catch: changes inside subdirectories (the bulk of real
+  changes), stale Purpose / Key Concepts / Top-Level descriptions (semantic), or
+  an outdated Key Technologies list (only flagged when empty). Therefore the
+  rule is asymmetric: **check red ⇒ definitely stale** → refresh via the
+  `generate-knowledge-index` skill (registered for GĐ2/GĐ6) before relying on
+  it; **check green ⇒ NOT proof of freshness** → treat the index as an
+  orientation router only, keep the Hierarchy authoritative, and proactively
+  refresh (`scaffold` + re-author semantics) at GĐ2/GĐ6 whenever structure/tech
+  changes. This links the consume side back to the produce side, but does not
+  over-rely on the gate.
 
 ## Alternatives Considered
 
@@ -64,16 +74,20 @@ Positive:
 
 - The index finally enters the agent's context loop — read first, cheaply,
   before crawling `docs/`.
-- Consume ↔ produce loop is closed: a stale index is detected
-  (`knowledge check`) and refreshed (`generate-knowledge-index`) instead of
-  silently trusted.
+- Consume ↔ produce loop is linked: a coarsely-stale index (root structure /
+  sections / TODO) is detected by `knowledge check` and refreshed via
+  `generate-knowledge-index` instead of silently trusted.
 - No code change, low risk; respects token-budget philosophy and anti-
   duplication rules.
 
 Tradeoffs:
 
-- Relies on agents honoring the trust-if-fresh rule; freshness is only enforced
-  when `knowledge check` is actually run.
+- `knowledge check` is a COARSE gate, not a freshness oracle: a green check does
+  not prove the index is current (it misses subdir changes and semantic drift in
+  Purpose / Key Concepts / descriptions). Real freshness still depends on agents
+  proactively regenerating at GĐ2/GĐ6 when structure/tech changes. Tightening
+  the gate (e.g. recursive structure hashing or detecting tech drift) is
+  deferred to a future CLI change (see Alternative 1 / Follow-Up).
 - Adds a small base read to every lane (mitigated by the index being compact and
   cheaper than ad-hoc exploration).
 
@@ -83,3 +97,5 @@ Tradeoffs:
   command proves more ergonomic than file read + `check`.
 - Optionally wire `knowledge check` into CI for installed repos (carried over
   from decision `0007`).
+- Optionally deepen `knowledge check` (e.g. recursive structure signature, tech-
+  drift detection) so a green check is a stronger freshness signal.
