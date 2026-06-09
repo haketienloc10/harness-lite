@@ -174,6 +174,11 @@
 ## GIAI ĐOẠN 6: GROWTH (Tiến hóa)
 
 - `IF` [Có Friction hoặc thiếu capability]: Thêm vào Backlog qua CLI.
+- **DeepWiki (on-demand):**
+  `IF [onboard repo cần wiki điều hướng, HOẶC cấu trúc / tech stack đổi khiến docs/wiki/*.md lỗi thời]`,
+  nạp `skills/generate-deepwiki.md` để (làm mới) bộ trang wiki (sơ đồ kiến
+  trúc + tóm tắt + link nguồn). Làm mới `docs/KNOWLEDGE_INDEX.md` TRƯỚC nếu
+  `knowledge check` đỏ. Xem registry `_harness/04-SKILLS.md`.
 - **Backlog Protocol:** BẮT BUỘC dùng `--predicted "<kết quả dự đoán>"`. Khi
   đóng ticket dùng `--outcome "<thực tế>"`. (Risk chỉ được chọn `tiny`,
   `normal`, `high-risk`).
