@@ -137,16 +137,20 @@ scripts/bin/harness-cli backlog close --id <id> --outcome "<actual result>"
 ## 8. Knowledge (bản đồ onboarding repo)
 
 ```bash
-# Tạo/làm mới docs/KNOWLEDGE_INDEX.md (regenerate Structure + Technologies;
-# giữ nguyên Purpose/Key Concepts và mô tả đã soạn giữa các marker)
+# Tạo/làm mới docs/KNOWLEDGE_INDEX.md (regenerate Key Technologies, How to Run,
+# Top-Level Structure, Key Subdirectories; giữ nguyên Purpose/Key Concepts và
+# mô tả đã soạn giữa các marker)
 scripts/bin/harness-cli knowledge scaffold
 
 # Cổng cơ học: file có đủ mục, không lệch cấu trúc, không còn TODO (exit != 0 nếu lỗi)
 scripts/bin/harness-cli knowledge check
 ```
 
-- Phần tất định (Top-Level Structure, Key Technologies) do CLI sinh; phần ngữ
-  nghĩa (Purpose, Key Concepts) do người/agent soạn và được giữ lại. Quy trình
-  đầy đủ ở `skills/generate-knowledge-index.md`.
+- Phần tất định (Key Technologies, How to Run, Top-Level Structure, Key
+  Subdirectories) do CLI sinh; phần ngữ nghĩa (Purpose, Key Concepts) do
+  người/agent soạn và được giữ lại. Key Technologies nhận thêm framework và
+  package manager bằng cách đọc nội dung manifest; How to Run rút lệnh
+  build/test từ manifest (tất định). Quy trình đầy đủ ở
+  `skills/generate-knowledge-index.md`.
 - Sau `scaffold` luôn chạy `npx prettier --write docs/KNOWLEDGE_INDEX.md` (repo
   dùng `proseWrap: always`); round-trip là idempotent.

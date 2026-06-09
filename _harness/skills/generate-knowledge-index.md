@@ -8,9 +8,10 @@
 - **Lane:** mọi lane (thường gắn GĐ2 khi onboard hoặc GĐ6 khi bảo trì).
 - **Giai đoạn:** GĐ2 (Planning) hoặc GĐ6 (Growth).
 
-Index = phần SỰ THẬT (Top-Level Structure, Key Technologies) do `harness-cli`
-sinh tất định + phần NGỮ NGHĨA (Purpose, Key Concepts) do người/agent soạn và
-được giữ lại giữa các marker. KHÔNG tự gõ tay phần sự thật.
+Index = phần SỰ THẬT (Key Technologies, How to Run, Top-Level Structure, Key
+Subdirectories) do `harness-cli` sinh tất định + phần NGỮ NGHĨA (Purpose, Key
+Concepts) do người/agent soạn và được giữ lại giữa các marker. KHÔNG tự gõ tay
+phần sự thật.
 
 ## INPUT (đọc trước khi chạy)
 
@@ -22,12 +23,14 @@ sinh tất định + phần NGỮ NGHĨA (Purpose, Key Concepts) do người/age
 ## STEPS
 
 1. **SCAFFOLD:** chạy `scripts/bin/harness-cli knowledge scaffold`. Lệnh tạo/làm
-   mới `docs/KNOWLEDGE_INDEX.md`: regenerate Top-Level Structure + Key
-   Technologies, GIỮ NGUYÊN Purpose/Key Concepts và mô tả từng mục đã soạn.
+   mới `docs/KNOWLEDGE_INDEX.md`: regenerate Key Technologies, How to Run,
+   Top-Level Structure và Key Subdirectories; GIỮ NGUYÊN Purpose/Key Concepts và
+   mô tả từng mục đã soạn. How to Run là tất định (rút từ manifest) — không soạn
+   tay.
 2. **AUTHOR:** điền giữa các marker — `KNOWLEDGE:PURPOSE:*` (1–3 câu repo dùng
    để làm gì) và `KNOWLEDGE:CONCEPTS:*` (thuật ngữ lõi, trỏ `docs/GLOSSARY.md`,
-   KHÔNG nhân bản). Thay mọi `TODO: describe.` ở Top-Level Structure bằng mô tả
-   1 dòng.
+   KHÔNG nhân bản). Thay mọi `TODO: describe.` ở Top-Level Structure VÀ Key
+   Subdirectories bằng mô tả 1 dòng.
 3. **FORMAT:** chạy `npx prettier --write docs/KNOWLEDGE_INDEX.md` (repo dùng
    `proseWrap: always`). Re-scaffold giữ nguyên nội dung đã soạn, an toàn.
 
@@ -56,7 +59,7 @@ sinh tất định + phần NGỮ NGHĨA (Purpose, Key Concepts) do người/age
 > **Vì sao làm mới quan trọng (consume ↔ produce):** index này được ĐỌC đầu mỗi
 > tác vụ như bản đồ Orient (xem `00-AGENTS.md` §1 và ĐỊNH MỨC TOKEN ở
 > `01-WORKFLOW.md`). LƯU Ý: `knowledge check` chỉ là cổng THÔ — check xanh KHÔNG
-> chứng minh index còn tươi (nó bỏ sót thay đổi trong thư mục con và phần ngữ
-> nghĩa Purpose / Key Concepts / mô tả top-level). Vì vậy CHỦ ĐỘNG chạy skill
-> này để `scaffold` + soạn lại phần ngữ nghĩa mỗi khi cấu trúc / tech stack đổi,
-> đừng đợi `check` đỏ.
+> chứng minh index còn tươi (nay nó bắt thêm đổi thư mục con cấp 2, nhưng vẫn bỏ
+> sót thay đổi sâu hơn và phần ngữ nghĩa Purpose / Key Concepts / mô tả). Vì vậy
+> CHỦ ĐỘNG chạy skill này để `scaffold` + soạn lại phần ngữ nghĩa mỗi khi cấu
+> trúc / tech stack đổi, đừng đợi `check` đỏ.
