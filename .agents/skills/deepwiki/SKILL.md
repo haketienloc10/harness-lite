@@ -10,29 +10,36 @@ description: >-
 
 # DeepWiki Generator
 
-Standalone, repo-agnostic skill. It produces a **DeepWiki** for the current
-repository — the same shape Devin's hosted DeepWiki gives you (architecture
-diagrams, summaries, links to sources, navigable pages) but committed as
-Markdown under `docs/wiki/`. No dependency on any project-specific files.
+Standalone, repo-agnostic, agent-agnostic skill. It produces a **DeepWiki** for
+the current repository — architecture diagrams, summaries, links to sources, and
+navigable pages — committed as Markdown under `docs/wiki/`. It depends only on
+the repo's own source and this skill folder; no host-specific files.
 
 A real DeepWiki is **derived from the code, not guessed**. Every claim, file
 link, and diagram must reflect what is actually in the tree at generation time.
 Prefer linking source over paraphrasing it.
 
-## 0. Steering (optional)
+## 0. Config (this skill folder)
 
-If `.devin/wiki.json` exists at the repo root, honor it (this is Devin's native
-wiki-steering format):
+Read **`./wiki.json`** (next to this file) for steering. All fields are
+optional:
 
-- `pages` — if present, create **exactly** these pages (each has `title`,
-  `purpose`, optional `parent` for hierarchy). Skip auto page-planning.
-- `repo_notes` — free-form guidance on priorities / emphasis. Always respect.
+| Field           | Meaning                                                        | Default                        |
+| --------------- | -------------------------------------------------------------- | ------------------------------ |
+| `output_dir`    | Where wiki pages are written.                                  | `docs/wiki`                    |
+| `include_globs` | If non-empty, restrict discovery to these globs.               | `[]` (whole repo)              |
+| `exclude_globs` | Paths to ignore during discovery.                              | vendored/build dirs, lockfiles |
+| `repo_notes`    | Free-form strings guiding emphasis/priorities. Always respect. | `[]`                           |
+| `pages`         | Explicit page list; each `{title, purpose, parent?}`.          | `[]` (auto-plan in step 2)     |
 
-If there is no `.devin/wiki.json`, plan the pages yourself in step 2.
+If `pages` is non-empty, create **exactly** those pages and skip auto
+page-planning. Empty arrays mean "decide automatically". Replace `docs/wiki` in
+the steps/verify below with `output_dir` if you changed it.
 
 ## 1. Discover (build a mental model of the repo)
 
-Gather facts mechanically before writing anything:
+Gather facts mechanically before writing anything (apply `include_globs` /
+`exclude_globs`):
 
 - **Inventory:** `git ls-files` for the real tree. Identify top-level
   directories and group source files by language/extension.
@@ -54,8 +61,8 @@ Gather facts mechanically before writing anything:
 ## 2. Plan pages
 
 - Home page: `docs/wiki/README.md`.
-- One page per major component from step 1 (or exactly the `.devin/wiki.json`
-  `pages`). Use clear filenames, e.g. `docs/wiki/backend.md`,
+- One page per major component from step 1 (or exactly the `pages` from
+  `wiki.json`). Use clear filenames, e.g. `docs/wiki/backend.md`,
   `docs/wiki/frontend.md`, `docs/wiki/data-model.md`. Keep the set focused —
   merge trivial dirs, split only genuinely large subsystems.
 
@@ -90,8 +97,8 @@ Every component page includes:
 
 - Home links to every page; every page links back to Home; components link to
   the sibling pages they reference. Use relative `./*.md` links.
-- If the repo has a Markdown formatter (e.g. Prettier config present), run it on
-  `docs/wiki/`. Otherwise skip formatting — do **not** add tooling the repo
+- If the repo has a Markdown formatter (e.g. a Prettier config present), run it
+  on `docs/wiki/`. Otherwise skip formatting — do **not** add tooling the repo
   doesn't already use.
 
 ## Verify (mechanical gate — each must pass)
