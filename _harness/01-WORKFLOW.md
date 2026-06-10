@@ -4,7 +4,9 @@
 
 - **Tài liệu dùng chung (Luôn có thể truy xuất):** Bất cứ khi nào cần tương tác
   với `harness.db`, Agent luôn được phép đọc `_harness/03-CLI_REFERENCE.md` để
-  lấy cú pháp.
+  lấy cú pháp. Để biết lệnh/công cụ nào đang có, dùng
+  `harness-cli query tools --summary` (tool registry, xem
+  `docs/TOOL_REGISTRY.md`) thay vì đoán.
 - **Skill (nạp on-demand):** KHÔNG preload `skills/*`. Tới giai đoạn có trigger
   khớp trong registry `_harness/04-SKILLS.md`, mới đọc ĐÚNG file skill đó.
 - **Tầng nền (MỌI lane, đọc ĐẦU TIÊN):** `docs/KNOWLEDGE_INDEX.md` — bản đồ
@@ -69,6 +71,9 @@
     story liên quan TRƯỚC khi sửa.
   - `IF` phát hiện doc/record cũ, mâu thuẫn, hoặc lặp lại nhầm lẫn: Ghi
     `friction` (GĐ5) và cân nhắc thêm backlog.
+  - `IF` cần một công cụ/lệnh để verify hoặc thao tác: trước tiên dò tool
+    registry bằng `query tools`; nếu là công cụ dự án chưa đăng ký thì
+    `tool register` (xem `docs/TOOL_REGISTRY.md`).
 - **Xử lý theo Input Type (DOCS FIRST):**
   - `IF [Type == New spec]`: Coi spec là _input material_, KHÔNG giữ làm spec
     sống. Xé nhỏ vào `docs/product/*` và tạo candidate epics/stories +
@@ -126,6 +131,9 @@
 
 - **Validation Ladder:** `validate:quick`, `test:integration`, `test:e2e`,
   `test:platform`, `test:release`. KHÔNG báo cáo PASS nếu lệnh chưa tồn tại.
+- **Batch verify trước mốc lớn:** Trước khi merge, claim maturity (H4+), hoặc
+  chạy benchmark, BẮT BUỘC chạy `harness-cli story verify-all` để verify hàng
+  loạt mọi story có `verify_command` (thoát `1` nếu có story fail).
 - **Story Status:** `planned`, `in_progress`, `implemented` (đã code VÀ có
   proof), `changed`, `retired`.
 - **Hành động CLI:**
@@ -144,7 +152,7 @@
 
 ---
 
-## GIAI ĐOẠN 5: TRACE (Ghi dấu vết)
+## GIAI ĐOẠN 5: TRACE & INTERVENTION (Ghi dấu vết)
 
 - **Kiểm tra File:** BẮT BUỘC chạy lệnh `git status --short` để lấy chính xác
   danh sách file trước khi ghi nhận.
@@ -168,6 +176,13 @@
 - **[Lưu ý] Decisions ≠ Decision record:** Trường `decisions` trong trace chỉ là
   bằng chứng, KHÔNG thay thế decision record bền vững ở
   `docs/decisions/NNNN-*.md` (xem GĐ2).
+- **Intervention (tách khỏi trace):** Khi human / reviewer / CI / agent khác
+  **sửa, ghi đè, leo thang, hoặc duyệt** công việc, ghi bằng
+  `harness-cli intervention add --trace <id> --type <type> --description "<text>" --source <human|reviewer|ci|agent>`.
+  Intervention lưu RIÊNG trace và là đầu vào cho `propose` (GĐ6).
+- **Context score (advisory):** Có thể chạy
+  `harness-cli score-context <trace-id>` để đối chiếu `files_read` với context
+  rules; chỉ để tự kiểm, KHÔNG đổi trace.
 
 ---
 
@@ -177,6 +192,16 @@
 - **Backlog Protocol:** BẮT BUỘC dùng `--predicted "<kết quả dự đoán>"`. Khi
   đóng ticket dùng `--outcome "<thực tế>"`. (Risk chỉ được chọn `tiny`,
   `normal`, `high-risk`).
+- **Vòng tự cải tiến:**
+  `friction + interventions + audit -> propose -> backlog`.
+  - Chạy `harness-cli audit` để lấy nhóm drift + điểm entropy (thấp là tốt;
+    trọng số ở `docs/HARNESS_AUDIT.md`).
+  - Chạy `harness-cli propose` để sinh đề xuất tất định từ
+    friction/intervention/audit; `propose --commit` CHỈ tạo backlog item
+    `proposed`, KHÔNG tự sửa policy hay tự duyệt.
+  - Con người duyệt proposal (`query backlog --open`). Đề xuất đổi source
+    hierarchy / kiến trúc / validation / risk policy PHẢI tạo decision record
+    trước khi áp dụng (xem `docs/IMPROVEMENT_PROTOCOL.md`).
 
 ---
 
@@ -188,10 +213,14 @@ Docs/Matrix cập nhật, Validation đã chạy, Trace đã lưu.
 - **Cửa ải Quản trị (BẮT BUỘC xin phép người trước khi):** đổi hướng kiến trúc;
   gỡ hoặc làm yếu yêu cầu validation; đổi source-of-truth hierarchy; đổi luật
   phân loại rủi ro (lane/hard gate); thay thế chính workflow này.
-- **Rào cản Maturity (Anti-Hallucination):**
+- **Rào cản Maturity (Anti-Hallucination):** (tra `docs/HARNESS_MATURITY.md`;
+  phân biệt rõ claim "partial" với "full").
   - KHÔNG claim H3 nếu chưa có đối chiếu benchmark và quy gán lỗi theo
     Component.
-  - KHÔNG claim H4 nếu chưa có hệ thống batch verification.
-  - KHÔNG claim H5 nếu hệ thống tiến hóa tự động chưa chạy.
+  - H4 = batch verification: KHÔNG claim H4 nếu `story verify-all` chưa chạy
+    được.
+  - H5 = tự cải tiến: chỉ claim H5 _partial_ khi `audit` + `propose` +
+    `intervention` đã có và chạy được; KHÔNG claim H5 _full_ cho tới khi
+    benchmark/trace chứng minh vòng propose tạo delta dương (hoặc bị revert).
 - **Hành động:** Trả lời User, tóm tắt rõ ID, thay đổi, và những gì không được
   thử.
