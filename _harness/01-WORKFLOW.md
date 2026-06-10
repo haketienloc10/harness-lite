@@ -12,9 +12,8 @@
 - **Tầng nền (MỌI lane, đọc ĐẦU TIÊN):** `docs/KNOWLEDGE_INDEX.md` — bản đồ
   onboarding cô đọng (ROUTER, không phải nguồn sự thật; xem `00-AGENTS.md` §1).
   Rẻ hơn crawl `docs/`; dùng nó để chọn đúng file cần đọc tiếp cho lane hiện
-  tại. `knowledge check` chỉ là cổng THÔ (chi tiết giới hạn freshness ở
-  `00-AGENTS.md` §1): check ĐỎ ⇒ chắc chắn cũ, làm mới ngay; check XANH ⇒ CHƯA
-  chắc tươi, vẫn ưu tiên nguồn Hierarchy.
+  tại. Giới hạn freshness của `knowledge check`: xem nguồn duy nhất ở
+  `00-AGENTS.md` §1.
 - **Tiny Lane:** ~2,000 tokens. Đọc `docs/KNOWLEDGE_INDEX.md`, `00-AGENTS.md`,
   intake docs, matrix query, và file cần sửa.
 - **Normal Lane:** ~5,000 tokens. Đọc thêm product/story docs liên quan,
@@ -28,9 +27,8 @@
 
 - **0. Orient (đọc TRƯỚC khi phân loại):** Đọc `docs/KNOWLEDGE_INDEX.md` để nắm
   Purpose + Top-Level Structure của repo trước khi chọn Type và đếm Risk Flags
-  (hiểu repo giúp phân loại đúng). `knowledge check` đỏ ⇒ index chắc chắn cũ,
-  làm mới qua skill `generate-knowledge-index` (GĐ2/GĐ6); check xanh KHÔNG bảo
-  đảm tươi (xem giới hạn ở `00-AGENTS.md` §1) — đừng tin mù.
+  (hiểu repo giúp phân loại đúng). Giới hạn freshness của `knowledge check`
+  (đỏ/xanh nghĩa là gì): xem nguồn duy nhất ở `00-AGENTS.md` §1.
 - **1. Chọn Type:** `New spec`, `Spec slice`, `Change request`,
   `New initiative`, `Maintenance request`, `Harness improvement`.
   - **Map Type → Đích đến (artifact):** `New spec` → `docs/product/*` +
@@ -99,8 +97,10 @@
   tạo file `docs/decisions/NNNN-*.md` VÀ chạy
   `harness-cli decision add --id <NNNN-id> --title "<Tên>" --doc docs/decisions/<file>.md`.
 - **[STOP] Hard Gate:** KHÔNG ĐƯỢC phép viết hoặc sửa mã nguồn ứng dụng nếu
-  Story Packet chưa được viết xong. Nếu hướng đi mông lung, DỪNG LẠI hỏi ý kiến
-  con người.
+  Story Packet chưa được viết xong. (NGOẠI LỆ: Lane tiny bỏ qua Story — được sửa
+  trực tiếp, nhưng CHỈ trong phạm vi docs/copy/setup cơ bản đã phân loại ở GĐ1;
+  nếu trong lúc làm phát hiện phải đổi logic code, DỪNG LẠI và leo thang lane về
+  normal.) Nếu hướng đi mông lung, DỪNG LẠI hỏi ý kiến con người.
 
 ---
 

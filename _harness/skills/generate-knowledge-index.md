@@ -57,9 +57,8 @@ phần sự thật.
   Concepts do người soạn, mọi mục cấu trúc có mô tả.
 
 > **Vì sao làm mới quan trọng (consume ↔ produce):** index này được ĐỌC đầu mỗi
-> tác vụ như bản đồ Orient (xem `00-AGENTS.md` §1 và ĐỊNH MỨC TOKEN ở
-> `01-WORKFLOW.md`). LƯU Ý: `knowledge check` chỉ là cổng THÔ — check xanh KHÔNG
-> chứng minh index còn tươi (nay nó bắt thêm đổi thư mục con cấp 2, nhưng vẫn bỏ
-> sót thay đổi sâu hơn và phần ngữ nghĩa Purpose / Key Concepts / mô tả). Vì vậy
-> CHỦ ĐỘNG chạy skill này để `scaffold` + soạn lại phần ngữ nghĩa mỗi khi cấu
-> trúc / tech stack đổi, đừng đợi `check` đỏ.
+> tác vụ như bản đồ Orient (xem ĐỊNH MỨC TOKEN ở `01-WORKFLOW.md`). Giới hạn
+> freshness của `knowledge check` (đỏ/xanh nghĩa là gì, vì sao xanh CHƯA chắc
+> tươi): xem nguồn duy nhất ở `00-AGENTS.md` §1. Vì vậy CHỦ ĐỘNG chạy skill này
+> để `scaffold` + soạn lại phần ngữ nghĩa mỗi khi cấu trúc / tech stack đổi,
+> đừng đợi `check` đỏ.
