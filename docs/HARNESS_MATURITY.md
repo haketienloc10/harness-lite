@@ -203,10 +203,12 @@ Benchmark indicators:
 
 Current status:
 
-- Partially achieved by Phase 4. `scripts/bin/harness-cli story verify <id>`
-  runs story-level proof commands, records pass/fail state, and `trace --story`
-  warns before close when verification has not passed. H4 remains partial until
-  batch verification and proof-column automation exist.
+- Achieved by Phase 5. `scripts/bin/harness-cli story verify <id>` runs
+  story-level proof commands, records pass/fail state, `trace --story` warns
+  before close when verification has not passed, and
+  `scripts/bin/harness-cli story verify-all` runs all configured story proof
+  commands in one pass. Proof-column automation remains a future enhancement,
+  but H4's required automated verification gate is now present.
 
 Activated responsibilities:
 
@@ -246,8 +248,12 @@ Benchmark indicators:
 
 Current status:
 
-- Not achieved. Phase 2 names the direction; later phases must implement the
-  evolution loop.
+- Partially achieved by Phase 5. `scripts/bin/harness-cli audit` detects
+  durable-state drift, `scripts/bin/harness-cli propose` generates structured
+  improvement proposals from friction, interventions, and audit results, and
+  `docs/IMPROVEMENT_PROTOCOL.md` defines the review loop. H5 is not fully
+  achieved until repeated benchmark outcomes prove proposed improvements create
+  measurable positive deltas or are explicitly reverted.
 
 Activated responsibilities:
 
@@ -258,14 +264,14 @@ Activated responsibilities:
 
 ## Current Assessment
 
-| Level | Status       | Evidence                                                                                                                                                                                                                 |
-| ----- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| H0    | Passed       | Harness docs, templates, and durable records exist.                                                                                                                                                                      |
-| H1    | Achieved     | `AGENTS.md`, `docs/HARNESS.md`, `docs/FEATURE_INTAKE.md`, `docs/ARCHITECTURE.md`, `docs/templates/*`, and `docs/TEST_MATRIX.md` exist.                                                                                   |
-| H2    | Achieved     | `scripts/bin/harness-cli`, `scripts/schema/001-init.sql`, durable story records, `docs/HARNESS_COMPONENTS.md`, `docs/HARNESS_MATURITY.md`, `docs/TRACE_SPEC.md`, and `docs/CONTEXT_RULES.md` define the Phase 2 surface. |
-| H3    | Partial      | Phase 3 adds `scripts/bin/harness-cli score-trace`, enriched friction context, and the backlog outcome loop; Phase 4 auto-scores traces on write. Component-level benchmark attribution remains open.                    |
-| H4    | Partial      | Phase 4 adds story-level `verify_command`, `story verify`, and trace-time verification warnings. Batch verification and proof-column automation remain open.                                                             |
-| H5    | Not achieved | No self-improvement protocol or automated evolution loop exists.                                                                                                                                                         |
+| Level | Status   | Evidence                                                                                                                                                                                                                 |
+| ----- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| H0    | Passed   | Harness docs, templates, and durable records exist.                                                                                                                                                                      |
+| H1    | Achieved | `AGENTS.md`, `docs/HARNESS.md`, `docs/FEATURE_INTAKE.md`, `docs/ARCHITECTURE.md`, `docs/templates/*`, and `docs/TEST_MATRIX.md` exist.                                                                                   |
+| H2    | Achieved | `scripts/bin/harness-cli`, `scripts/schema/001-init.sql`, durable story records, `docs/HARNESS_COMPONENTS.md`, `docs/HARNESS_MATURITY.md`, `docs/TRACE_SPEC.md`, and `docs/CONTEXT_RULES.md` define the Phase 2 surface. |
+| H3    | Partial  | Phase 3 adds `scripts/bin/harness-cli score-trace`, enriched friction context, and the backlog outcome loop; Phase 4 auto-scores traces on write. Component-level benchmark attribution remains open.                    |
+| H4    | Achieved | Phase 4 adds story-level `verify_command`, `story verify`, and trace-time verification warnings. Phase 5 adds `story verify-all` for batch story proof.                                                                  |
+| H5    | Partial  | Phase 5 adds `audit`, `score-context`, `intervention add/query`, `propose`, `docs/HARNESS_AUDIT.md`, and `docs/IMPROVEMENT_PROTOCOL.md`; repeated benchmark outcome proof remains open.                                  |
 
 ## Responsibility Activation
 
@@ -298,3 +304,12 @@ results in the durable layer, auto-scores traces when they are written, and
 warns before close when a linked story's verification has not passed. It does
 not claim full H4 because benchmark execution, batch verification, and automatic
 proof-column updates remain separate work.
+
+## Phase 5 Interpretation
+
+Phase 5 completes H4 by adding batch story verification and starts H5 by adding
+tool discovery, intervention records, context scoring, drift audit, and
+deterministic proposal generation. The repository may claim H5 partial only when
+those commands and docs are present and validated; it must not claim full H5
+until benchmark runs or trace outcomes prove the proposal loop improves the
+harness over time.

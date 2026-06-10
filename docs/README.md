@@ -10,17 +10,17 @@ future user-provided spec.
 - `ARCHITECTURE.md`: architecture discovery and boundary rules.
 - `TEST_MATRIX.md`: legacy proof map; current proof status is queried with
   `scripts/bin/harness-cli query matrix`.
-- `HARNESS_BACKLOG.md`: legacy improvement list; current improvement records are
-  stored with `scripts/bin/harness-cli backlog`.
+- `HARNESS_BACKLOG.md`: legacy improvement list; current improvement records
+  are stored with `scripts/bin/harness-cli backlog`.
 - `GLOSSARY.md`: shared terms.
-- `CONTEXT_RULES.md`: Context rules help agents decide what to read, when to
-  read it, and when to stop reading.
 
 ## Folders
 
 - `product/`: current product truth, empty until a spec is derived.
 - `stories/`: feature packets and backlog.
 - `decisions/`: durable decisions and tradeoffs.
+- `demo/`: concrete walkthroughs that show how the harness transforms input
+  into agent-ready work.
 - `templates/`: reusable spec-intake, story, plan, decision, and validation
   formats.
 
