@@ -16,6 +16,7 @@ INSTALL_ITEMS=(
   "_harness"
   "docs"
   "scripts"
+  ".agents"
 )
 
 log() {
