@@ -22,8 +22,15 @@ mọi việc Harness; KHÔNG sửa tay `harness.db`. Schema nằm dưới `scrip
 
 ```bash
 scripts/bin/harness-cli init        # Khởi tạo harness.db nếu chưa có
+scripts/bin/harness-cli migrate     # Áp các schema migration còn thiếu
+scripts/bin/harness-cli import brownfield  # Seed durable records từ state markdown
 scripts/bin/harness-cli --version   # Xem phiên bản CLI
 ```
+
+- `migrate` áp các file dưới `scripts/schema/` chưa chạy (vd
+  `003-tool-registry.sql`, `004-intervention.sql`). Chạy sau khi cập nhật
+  binary/schema để bật lệnh Phase 5.
+- `import brownfield` chỉ dùng khi khởi tạo durable layer từ docs có sẵn.
 
 ## 2. Intake (phân loại đầu vào)
 
@@ -50,10 +57,17 @@ scripts/bin/harness-cli story update --id <id> --verify "<command>"
 
 # Chạy verify (chỉ nhận story id)
 scripts/bin/harness-cli story verify <id>
+
+# Chạy TẤT CẢ verify command đã cấu hình (batch) — dùng trước merge / claim maturity / benchmark
+scripts/bin/harness-cli story verify-all
 ```
 
 - `story verify` chạy lệnh từ gốc repo, ghi `last_verified_at` +
   `last_verified_result`, thoát `0` nếu pass / `1` nếu fail.
+- `story verify-all` chạy mọi story có `verify_command`, in 1 kết quả/story, BỎ
+  QUA story không cấu hình verify, và thoát `1` nếu BẤT KỲ story nào fail. BẮT
+  BUỘC chạy trước khi merge, trước khi claim maturity (H4+), và trước benchmark
+  run.
 - Khi `trace --story <id>` trỏ tới story có lệnh verify CHƯA từng pass, trace
   vẫn ghi nhưng in cảnh báo trước khi đóng.
 - Lấy giá trị proof để copy ngược vào `story update`: dùng
@@ -74,6 +88,12 @@ scripts/bin/harness-cli decision add \
   `docs/decisions/` (từ `docs/templates/decision.md`) VÀ bản ghi durable ở trên.
 - Trường `--decisions` của trace chỉ là bằng chứng, KHÔNG thay cho bản ghi
   decision durable.
+- Có thể gắn lệnh verify cho decision và chạy:
+
+```bash
+scripts/bin/harness-cli decision add --id <id> --title "<text>" --verify "<command>"
+scripts/bin/harness-cli decision verify <id>
+```
 
 ## 5. Trace (ghi vết thực thi)
 
@@ -104,6 +124,14 @@ scripts/bin/harness-cli trace \
 scripts/bin/harness-cli score-trace --id <id>
 ```
 
+- `score-context <trace-id>` (advisory): chấm `files_read` của trace so với
+  context rules đã biên dịch (`docs/CONTEXT_RULES.md`). KHÔNG đổi trace; chỉ báo
+  coverage để biết thiếu ngữ cảnh gì.
+
+```bash
+scripts/bin/harness-cli score-context <trace-id>
+```
+
 ## 6. Query (truy vấn durable layer)
 
 ```bash
@@ -111,9 +139,14 @@ scripts/bin/harness-cli query matrix             # Proof map dạng yes/no
 scripts/bin/harness-cli query matrix --numeric   # Dạng 1/0 để copy vào update
 scripts/bin/harness-cli query backlog --open     # Item proposed/accepted
 scripts/bin/harness-cli query backlog --closed   # So predicted với outcome
+scripts/bin/harness-cli query intakes            # Intake gần đây
+scripts/bin/harness-cli query decisions          # Bản ghi decision durable
 scripts/bin/harness-cli query traces             # Danh sách trace đã ghi
 scripts/bin/harness-cli query friction           # Ma sát theo từng task
+scripts/bin/harness-cli query tools --summary    # Tool registry (xem mục 9)
+scripts/bin/harness-cli query interventions      # Can thiệp đã ghi (xem mục 10)
 scripts/bin/harness-cli query stats              # Thống kê tổng quan
+scripts/bin/harness-cli query sql "<SQL>"        # SQL thô trên harness.db (đọc)
 ```
 
 ## 7. Backlog (vòng cải tiến từ friction)
@@ -154,3 +187,76 @@ scripts/bin/harness-cli knowledge check
   `skills/generate-knowledge-index.md`.
 - Sau `scaffold` luôn chạy `npx prettier --write docs/KNOWLEDGE_INDEX.md` (repo
   dùng `proseWrap: always`); round-trip là idempotent.
+
+## 9. Tool Registry (khám phá + đăng ký công cụ)
+
+Manifest công cụ đọc được bằng máy; chi tiết ở `docs/TOOL_REGISTRY.md`.
+
+```bash
+# Xem công cụ compiled + đã đăng ký
+scripts/bin/harness-cli query tools --summary
+scripts/bin/harness-cli query tools --json
+scripts/bin/harness-cli query tools --responsibility Verification
+
+# Đăng ký công cụ dự án bên ngoài
+scripts/bin/harness-cli tool register \
+  --name <name> \
+  --command <path-or-cmd> \
+  --description "<10-200 ký tự>" \
+  --responsibility Verification \
+  --args "env:enum:required:staging,production"
+
+# Gỡ công cụ
+scripts/bin/harness-cli tool remove --name <name>
+```
+
+- Tên tool phải duy nhất; `--description` 10-200 ký tự; `--responsibility` phải
+  thuộc danh sách Runtime Substrate (`docs/HARNESS_COMPONENTS.md`).
+- `--command` phải tồn tại trên PATH hoặc là đường dẫn; chỉ dùng `--force` khi
+  công cụ cố tình chưa có trên máy hiện tại.
+- `--args` theo mẫu `name:type:required` hoặc `name:type:required:help`.
+
+## 10. Intervention (ghi can thiệp — tách khỏi trace)
+
+Ghi khi human / reviewer / CI / agent khác **sửa, ghi đè, leo thang, hoặc
+duyệt** công việc. Interventions lưu riêng trace và là đầu vào cho `propose`
+(mục 11).
+
+```bash
+scripts/bin/harness-cli intervention add \
+  --trace <id> \
+  --type correction \
+  --description "<text>" \
+  --source human \
+  --story <id> \
+  --impact "<text>"
+
+scripts/bin/harness-cli query interventions --story <id>
+scripts/bin/harness-cli query interventions --trace <id>
+scripts/bin/harness-cli query interventions --type correction
+```
+
+## 11. Audit & Improvement (drift + tự cải tiến)
+
+Vòng tự cải tiến Phase 5:
+`friction + interventions + audit -> propose -> backlog`. Xem
+`docs/HARNESS_AUDIT.md`, `docs/IMPROVEMENT_PROTOCOL.md`, decision `0007`.
+
+```bash
+# Drift audit: in từng nhóm lệch + điểm entropy (thấp là tốt, cap 100)
+scripts/bin/harness-cli audit
+
+# Sinh đề xuất cải tiến tất định từ friction/intervention/audit (advisory)
+scripts/bin/harness-cli propose
+
+# Chốt đề xuất thành backlog item `proposed` (KHÔNG sửa policy/duyệt hộ)
+scripts/bin/harness-cli propose --commit
+```
+
+- `audit` chấm: orphaned/unverified stories, unverified decisions, backlog thiếu
+  outcome, story stale, broken tools (xem bảng trọng số ở
+  `docs/HARNESS_AUDIT.md`).
+- `propose` tất định, evidence-backed; mỗi đề xuất gồm component, evidence,
+  predicted impact, risk, suggested action, validation plan, confidence.
+- `--commit` chỉ tạo backlog item `proposed`; con người vẫn là cổng duyệt
+  (review qua `query backlog --open`).

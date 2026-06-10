@@ -26,13 +26,19 @@ thành thay đổi an toàn.
   `docs/decisions/*`. KHÔNG mở rộng một file Spec nguyên khối; hãy cập nhật các
   file docs nhỏ hơn.
 - **Durable Layer:** Chính sách nằm ở file Markdown, còn dữ liệu vận hành
-  (intake, story, quyết định, trace) PHẢI lưu bằng SQLite (`harness.db`) thông
-  qua CLI. BẮT BUỘC tra cứu `_harness/03-CLI_REFERENCE.md` để biết cú pháp và
-  tham số chuẩn xác của mọi lệnh `harness-cli`.
+  (intake, story, quyết định, trace, **intervention**, **tool registry**) PHẢI
+  lưu bằng SQLite (`harness.db`) thông qua CLI. BẮT BUỘC tra cứu
+  `_harness/03-CLI_REFERENCE.md` để biết cú pháp và tham số chuẩn xác của mọi
+  lệnh `harness-cli` (gồm các lệnh Phase 5: `story verify-all`, `audit`,
+  `propose`, `intervention`, `tool`, `score-context`).
 - **Tài liệu tham chiếu sâu (khi cần):** `_harness/*` là bộ khung thực thi
   chính. Khi cần chi tiết hơn (mô hình tổng thể, lý do, taxonomy, maturity), tra
   cứu `docs/*` — KHÔNG bắt buộc đọc hết; entrypoint thực thi vẫn là
-  `_harness/01-WORKFLOW.md`.
+  `_harness/01-WORKFLOW.md`. Các tài liệu Phase 5: `docs/TOOL_REGISTRY.md` (tool
+  access), `docs/HARNESS_AUDIT.md` (entropy/drift), và
+  `docs/IMPROVEMENT_PROTOCOL.md` (vòng `propose`). 11 Responsibilities ở
+  `docs/HARNESS_COMPONENTS.md` nay đã phủ Tool access, Intervention recording,
+  và Entropy auditing.
 - **Skill chuyên biệt (nạp on-demand):** `_harness/04-SKILLS.md` là hợp đồng +
   bảng đăng ký skill. KHÔNG preload; chỉ nạp file skill khi trigger khớp ở đúng
   giai đoạn (xem ĐỊNH MỨC TOKEN trong `01-WORKFLOW.md`).
