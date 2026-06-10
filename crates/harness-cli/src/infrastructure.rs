@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -13,6 +14,7 @@ use crate::application::{
     InterventionFilter, MigrateResult, QueryTable, StoryAddInput, StoryUpdateInput,
     StoryVerifyResult, ToolRegisterInput, TraceInput,
 };
+use crate::domain::knowledge::{self, KnowledgeInputs, RunCommand, TopLevelEntry};
 use crate::domain::{
     compiled_tool_registry, normalize_token, score_context, score_trace, validate_tool_description,
     AuditFinding, AuditResult, BacklogFilter, BacklogRecord, ContextScoreResult,
@@ -1727,6 +1729,308 @@ fn is_decision_file_name(file_name: &str) -> bool {
     prefix.len() == 4 && prefix.chars().all(|character| character.is_ascii_digit())
 }
 
+const KNOWLEDGE_IGNORE_DIRS: &[&str] = &["target", "node_modules", "dist", "build", "vendor"];
+const KNOWLEDGE_WALK_MAX_DEPTH: usize = 4;
+
+/// Filesystem gateway for the Knowledge Index. Reads repo structure and tech
+/// signals and reads/writes `docs/KNOWLEDGE_INDEX.md`. Holds no SQLite state.
+#[derive(Debug)]
+pub struct KnowledgeWorkspace {
+    repo_root: PathBuf,
+}
+
+impl KnowledgeWorkspace {
+    pub fn new(repo_root: PathBuf) -> Self {
+        Self { repo_root }
+    }
+
+    fn index_path(&self) -> PathBuf {
+        self.repo_root.join(knowledge::INDEX_PATH)
+    }
+
+    /// Ensure the index's parent directory exists so it is always listed as a
+    /// top-level entry (the index lives under it), keeping scaffold idempotent.
+    pub fn ensure_index_dir(&self) -> Result<()> {
+        if let Some(parent) = self.index_path().parent() {
+            fs::create_dir_all(parent)?;
+        }
+        Ok(())
+    }
+
+    pub fn read_existing(&self) -> Result<Option<String>> {
+        let path = self.index_path();
+        if !path.exists() {
+            return Ok(None);
+        }
+        Ok(Some(fs::read_to_string(path)?))
+    }
+
+    pub fn write_index(&self, content: &str) -> Result<PathBuf> {
+        let path = self.index_path();
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        fs::write(&path, content)?;
+        Ok(path)
+    }
+
+    pub fn gather(&self) -> Result<KnowledgeInputs> {
+        let repo_name = self
+            .repo_root
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("repository")
+            .to_owned();
+
+        let mut entries: Vec<TopLevelEntry> = Vec::new();
+        let mut signals: BTreeSet<String> = BTreeSet::new();
+
+        for entry in fs::read_dir(&self.repo_root)? {
+            let entry = entry?;
+            let name = match entry.file_name().to_str() {
+                Some(name) => name.to_owned(),
+                None => continue,
+            };
+            // `DirEntry::file_type` does not follow symlinks, so a symlink to a
+            // directory would otherwise be reported as a file. Resolve through
+            // the path so a linked directory is listed with a trailing slash.
+            let is_dir = entry.path().is_dir();
+
+            // Every top-level name is a detection signal (dotfiles included).
+            signals.insert(name.clone());
+
+            // The structure listing skips hidden, build, and local-db noise.
+            // `is_ignored_dir` only applies to directories so a regular file
+            // that happens to share a name (e.g. `build`) is still listed.
+            let ignored =
+                is_hidden(&name) || (is_dir && is_ignored_dir(&name)) || is_db_artifact(&name);
+            if !ignored {
+                entries.push(TopLevelEntry { name, is_dir });
+            }
+        }
+        entries.sort_by(|left, right| left.name.cmp(&right.name));
+
+        self.collect_signals(&mut signals);
+
+        let subdirectories = self.collect_subdirectories(&entries);
+        let commands = self.collect_commands();
+        let technologies = knowledge::detect_technologies(&signals);
+        Ok(KnowledgeInputs {
+            repo_name,
+            technologies,
+            entries,
+            subdirectories,
+            commands,
+        })
+    }
+
+    /// List the immediate subdirectories of each top-level directory (one
+    /// level deeper than `entries`), addressed by relative path. Hidden,
+    /// ignored, and db-artifact names are skipped.
+    fn collect_subdirectories(&self, entries: &[TopLevelEntry]) -> Vec<TopLevelEntry> {
+        let mut subdirectories: Vec<TopLevelEntry> = Vec::new();
+        for parent in entries.iter().filter(|entry| entry.is_dir) {
+            let Ok(read) = fs::read_dir(self.repo_root.join(&parent.name)) else {
+                continue;
+            };
+            for entry in read.flatten() {
+                let Some(name) = entry.file_name().to_str().map(str::to_owned) else {
+                    continue;
+                };
+                if !entry.path().is_dir() {
+                    continue;
+                }
+                if is_hidden(&name) || is_ignored_dir(&name) || is_db_artifact(&name) {
+                    continue;
+                }
+                subdirectories.push(TopLevelEntry {
+                    name: format!("{}/{}", parent.name, name),
+                    is_dir: true,
+                });
+            }
+        }
+        subdirectories.sort_by(|left, right| left.name.cmp(&right.name));
+        subdirectories
+    }
+
+    /// Derive deterministic build/test/run commands from root manifests.
+    fn collect_commands(&self) -> Vec<RunCommand> {
+        let mut commands: Vec<RunCommand> = Vec::new();
+        let mut push = |command: &str, label: &str| {
+            if !commands.iter().any(|item| item.command == command) {
+                commands.push(RunCommand {
+                    command: command.to_owned(),
+                    label: label.to_owned(),
+                });
+            }
+        };
+        let read_root = |name: &str| fs::read_to_string(self.repo_root.join(name)).ok();
+
+        if self.repo_root.join("Cargo.toml").exists() {
+            push("cargo build", "build");
+            push("cargo test", "test");
+        }
+        if let Some(text) = read_root("package.json") {
+            for script in ["build", "test", "dev", "start", "lint"] {
+                if package_json_has_script(&text, script) {
+                    push(&format!("npm run {script}"), script);
+                }
+            }
+        }
+        if let Some(text) = read_root("Makefile") {
+            for target in ["build", "test", "run", "lint"] {
+                if makefile_has_target(&text, target) {
+                    push(&format!("make {target}"), target);
+                }
+            }
+        }
+        if self.repo_root.join("go.mod").exists() {
+            push("go build ./...", "build");
+            push("go test ./...", "test");
+        }
+        let python_manifest = read_root("pyproject.toml")
+            .into_iter()
+            .chain(read_root("requirements.txt"))
+            .collect::<String>()
+            .to_lowercase();
+        if python_manifest.contains("pytest") {
+            push("pytest", "test");
+        }
+        commands
+    }
+
+    fn collect_signals(&self, signals: &mut BTreeSet<String>) {
+        let mut has_rusqlite = false;
+        let mut stack: Vec<(PathBuf, usize)> = vec![(self.repo_root.clone(), 0)];
+        while let Some((dir, depth)) = stack.pop() {
+            let Ok(read) = fs::read_dir(&dir) else {
+                continue;
+            };
+            for entry in read.flatten() {
+                let Some(name) = entry.file_name().to_str().map(str::to_owned) else {
+                    continue;
+                };
+                let Ok(file_type) = entry.file_type() else {
+                    continue;
+                };
+                if file_type.is_dir() {
+                    if is_hidden(&name) || is_ignored_dir(&name) {
+                        continue;
+                    }
+                    if depth + 1 < KNOWLEDGE_WALK_MAX_DEPTH {
+                        stack.push((entry.path(), depth + 1));
+                    }
+                    continue;
+                }
+                if let Some(extension) = std::path::Path::new(&name)
+                    .extension()
+                    .and_then(|value| value.to_str())
+                {
+                    signals.insert(format!("ext:{}", extension.to_lowercase()));
+                }
+                match name.as_str() {
+                    "Cargo.toml" => {
+                        if let Ok(text) = fs::read_to_string(entry.path()) {
+                            if text.contains("[workspace]") {
+                                signals.insert(knowledge::SIGNAL_CARGO_WORKSPACE.to_owned());
+                            }
+                            if text.contains("rusqlite") {
+                                has_rusqlite = true;
+                            }
+                        }
+                    }
+                    "package.json" => {
+                        if let Ok(text) = fs::read_to_string(entry.path()) {
+                            collect_node_framework_signals(&text, signals);
+                        }
+                    }
+                    "requirements.txt" | "pyproject.toml" => {
+                        if let Ok(text) = fs::read_to_string(entry.path()) {
+                            collect_python_framework_signals(&text, signals);
+                        }
+                    }
+                    "Gemfile" => {
+                        if let Ok(text) = fs::read_to_string(entry.path()) {
+                            if text.to_lowercase().contains("rails") {
+                                signals.insert("dep:rails".to_owned());
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        if has_rusqlite {
+            signals.insert(knowledge::SIGNAL_RUST_SQLITE.to_owned());
+        }
+    }
+}
+
+/// Emit `dep:*` signals for frameworks named in a `package.json`. Quoted
+/// dependency names keep the substring match from firing on prose.
+fn collect_node_framework_signals(text: &str, signals: &mut BTreeSet<String>) {
+    let markers = [
+        ("\"react\"", "dep:react"),
+        ("\"next\"", "dep:next"),
+        ("\"vue\"", "dep:vue"),
+        ("\"@angular/", "dep:angular"),
+        ("\"svelte\"", "dep:svelte"),
+        ("\"express\"", "dep:express"),
+        ("\"@nestjs/", "dep:nestjs"),
+    ];
+    for (needle, signal) in markers {
+        if text.contains(needle) {
+            signals.insert(signal.to_owned());
+        }
+    }
+}
+
+/// Emit `dep:*` signals for Python web frameworks named in a manifest.
+fn collect_python_framework_signals(text: &str, signals: &mut BTreeSet<String>) {
+    let lowered = text.to_lowercase();
+    for (needle, signal) in [
+        ("django", "dep:django"),
+        ("flask", "dep:flask"),
+        ("fastapi", "dep:fastapi"),
+    ] {
+        if lowered.contains(needle) {
+            signals.insert(signal.to_owned());
+        }
+    }
+}
+
+/// True when a `package.json` `scripts` block defines `"<name>":`.
+fn package_json_has_script(text: &str, name: &str) -> bool {
+    let Some(scripts_start) = text.find("\"scripts\"") else {
+        return false;
+    };
+    let after = &text[scripts_start..];
+    let Some(open) = after.find('{') else {
+        return false;
+    };
+    let block = &after[open..];
+    let end = block.find('}').unwrap_or(block.len());
+    block[..end].contains(&format!("\"{name}\""))
+}
+
+/// True when a `Makefile` declares a `<name>:` target at column zero.
+fn makefile_has_target(text: &str, name: &str) -> bool {
+    let prefix = format!("{name}:");
+    text.lines().any(|line| line.starts_with(&prefix))
+}
+
+fn is_hidden(name: &str) -> bool {
+    name.starts_with('.')
+}
+
+fn is_ignored_dir(name: &str) -> bool {
+    KNOWLEDGE_IGNORE_DIRS.contains(&name)
+}
+
+fn is_db_artifact(name: &str) -> bool {
+    name.ends_with(".db")
+}
+
 fn sql_value_to_string(value: ValueRef<'_>) -> String {
     match value {
         ValueRef::Null => String::new(),
@@ -2681,5 +2985,115 @@ implemented
         assert_eq!(specific.achieved, TraceQualityTier::Minimal);
         assert_eq!(specific.required, None);
         assert!(specific.meets_requirement);
+    }
+
+    #[test]
+    fn knowledge_workspace_gathers_structure_and_tech() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let repo_root = temp_dir.path().join("demo");
+        fs::create_dir_all(repo_root.join("src")).unwrap();
+        fs::create_dir_all(repo_root.join("target/debug")).unwrap();
+        fs::write(
+            repo_root.join("Cargo.toml"),
+            "[workspace]\nmembers=[\"x\"]\n[dependencies]\nrusqlite=\"0\"\n",
+        )
+        .unwrap();
+        fs::write(repo_root.join("schema.sql"), "CREATE TABLE t(x);").unwrap();
+        fs::write(repo_root.join("harness.db"), "binary").unwrap();
+        fs::write(repo_root.join(".prettierrc"), "{}").unwrap();
+
+        let workspace = KnowledgeWorkspace::new(repo_root);
+        let inputs = workspace.gather().unwrap();
+
+        // Build/db artifacts and dotfiles are excluded from the structure list.
+        let names: Vec<&str> = inputs.entries.iter().map(|e| e.name.as_str()).collect();
+        assert_eq!(names, vec!["Cargo.toml", "schema.sql", "src"]);
+        assert!(!names.contains(&"target"));
+        assert!(!names.contains(&"harness.db"));
+        // Dotfile is excluded from the listing but still drives detection.
+        assert!(inputs.technologies.contains(&"Rust".to_owned()));
+        assert!(inputs.technologies.contains(&"Cargo Workspace".to_owned()));
+        assert!(inputs.technologies.contains(&"SQLite".to_owned()));
+        assert!(inputs.technologies.contains(&"Prettier".to_owned()));
+    }
+
+    #[test]
+    fn gather_collects_subdirectories_commands_and_frameworks() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let repo_root = temp_dir.path().join("app");
+        fs::create_dir_all(repo_root.join("src/components")).unwrap();
+        fs::create_dir_all(repo_root.join("src/lib")).unwrap();
+        fs::create_dir_all(repo_root.join("node_modules/react")).unwrap();
+        fs::write(
+            repo_root.join("package.json"),
+            "{\n  \"dependencies\": { \"react\": \"^18\", \"next\": \"^14\" },\n  \
+             \"scripts\": { \"build\": \"next build\", \"test\": \"vitest\" }\n}\n",
+        )
+        .unwrap();
+        fs::write(repo_root.join("yarn.lock"), "").unwrap();
+
+        let inputs = KnowledgeWorkspace::new(repo_root).gather().unwrap();
+
+        // Frameworks and the package manager are read from manifest contents.
+        for expected in ["Node.js", "React", "Next.js", "Yarn"] {
+            assert!(
+                inputs.technologies.iter().any(|t| t == expected),
+                "expected {expected} in {:?}",
+                inputs.technologies
+            );
+        }
+
+        // Immediate subdirectories are listed by path; ignored dirs excluded.
+        let subdirs: Vec<&str> = inputs
+            .subdirectories
+            .iter()
+            .map(|e| e.name.as_str())
+            .collect();
+        assert_eq!(subdirs, vec!["src/components", "src/lib"]);
+        assert!(!subdirs.iter().any(|s| s.contains("node_modules")));
+
+        // Commands are derived from package.json scripts.
+        let commands: Vec<&str> = inputs.commands.iter().map(|c| c.command.as_str()).collect();
+        assert!(commands.contains(&"npm run build"));
+        assert!(commands.contains(&"npm run test"));
+        assert!(!commands.contains(&"npm run dev"));
+    }
+
+    #[test]
+    fn gather_lists_files_named_like_ignored_dirs() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let repo_root = temp_dir.path().join("demo");
+        fs::create_dir_all(repo_root.join("target")).unwrap();
+        // A regular file sharing an ignored directory name must still be listed.
+        fs::write(repo_root.join("build"), "#!/bin/sh\n").unwrap();
+        fs::write(repo_root.join("Cargo.toml"), "[package]\nname=\"d\"\n").unwrap();
+
+        let workspace = KnowledgeWorkspace::new(repo_root);
+        let inputs = workspace.gather().unwrap();
+        let names: Vec<&str> = inputs.entries.iter().map(|e| e.name.as_str()).collect();
+
+        assert!(names.contains(&"build"), "file `build` should be listed");
+        assert!(!names.contains(&"target"), "dir `target` should be ignored");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn gather_marks_symlinked_directory_as_dir() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let repo_root = temp_dir.path().join("demo");
+        fs::create_dir_all(repo_root.join("real")).unwrap();
+        fs::write(repo_root.join("Cargo.toml"), "[package]\nname=\"d\"\n").unwrap();
+        std::os::unix::fs::symlink(repo_root.join("real"), repo_root.join("linked")).unwrap();
+
+        let workspace = KnowledgeWorkspace::new(repo_root);
+        let inputs = workspace.gather().unwrap();
+        let linked = inputs
+            .entries
+            .iter()
+            .find(|entry| entry.name == "linked")
+            .expect("symlink should be listed");
+
+        // A symlink pointing at a directory is reported as a directory.
+        assert!(linked.is_dir);
     }
 }

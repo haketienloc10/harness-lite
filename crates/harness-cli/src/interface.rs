@@ -8,8 +8,10 @@ use thiserror::Error;
 use crate::application::{
     BacklogAddInput, BacklogCloseInput, BrownfieldImportResult, DecisionAddInput, HarnessContext,
     HarnessService, InitResult, IntakeInput, InterventionAddInput, InterventionFilter,
-    MigrateResult, QueryTable, StoryAddInput, StoryUpdateInput, ToolRegisterInput, TraceInput,
+    KnowledgeService, MigrateResult, QueryTable, StoryAddInput, StoryUpdateInput,
+    ToolRegisterInput, TraceInput,
 };
+use crate::domain::knowledge;
 use crate::domain::{
     parse_optional_integer, parse_tool_args, proof_display, validate_responsibility, BacklogFilter,
     BacklogRecord, BoolFlag, ContextScoreResult, CsvList, DecisionRecord, FrictionRecord,
@@ -59,6 +61,22 @@ enum Command {
     Propose(ProposeArgs),
     /// Query harness data.
     Query(QueryArgs),
+    /// Generate or verify the repository Knowledge Index.
+    Knowledge(KnowledgeArgs),
+}
+
+#[derive(Args, Debug)]
+struct KnowledgeArgs {
+    #[command(subcommand)]
+    action: KnowledgeAction,
+}
+
+#[derive(Subcommand, Debug)]
+enum KnowledgeAction {
+    /// Create or refresh docs/KNOWLEDGE_INDEX.md (deterministic sections).
+    Scaffold,
+    /// Verify the index is present, current, and fully authored.
+    Check,
 }
 
 #[derive(Args, Debug)]
@@ -406,6 +424,8 @@ pub enum InterfaceError {
     CurrentDir(std::io::Error),
     #[error("query sql requires a SQL statement")]
     EmptySql,
+    #[error("knowledge check failed with {0} problem(s)")]
+    KnowledgeCheckFailed(usize),
 }
 
 pub fn run(cli: Cli) -> Result<(), InterfaceError> {
@@ -595,6 +615,35 @@ pub fn run(cli: Cli) -> Result<(), InterfaceError> {
             let id = parse_optional_integer("score-context: trace-id", Some(trace_id))?
                 .expect("value provided");
             print_context_score(&service.score_context(id)?);
+        }
+        Command::Knowledge(args) => {
+            let service = KnowledgeService::new(resolve_repo_root()?);
+            match args.action {
+                KnowledgeAction::Scaffold => {
+                    let result = service.scaffold()?;
+                    let verb = if result.created {
+                        "Created"
+                    } else {
+                        "Refreshed"
+                    };
+                    println!("{verb} {}", result.path.display());
+                    println!(
+                        "Fill the Purpose and Key Concepts blocks, then run: harness-cli knowledge check"
+                    );
+                }
+                KnowledgeAction::Check => {
+                    let problems = service.check()?;
+                    if problems.is_empty() {
+                        println!("Knowledge Index OK: {}", knowledge::INDEX_PATH);
+                    } else {
+                        eprintln!("Knowledge Index has {} problem(s):", problems.len());
+                        for problem in &problems {
+                            eprintln!("  - {problem}");
+                        }
+                        return Err(InterfaceError::KnowledgeCheckFailed(problems.len()));
+                    }
+                }
+            }
         }
         Command::Audit => print_audit(&service.audit()?),
         Command::Propose(args) => print_proposals(&service.propose(args.commit)?),
@@ -898,11 +947,15 @@ fn print_migrate_result(result: MigrateResult) {
     }
 }
 
+fn resolve_repo_root() -> Result<PathBuf, InterfaceError> {
+    match env::var_os("HARNESS_REPO_ROOT") {
+        Some(path) => Ok(PathBuf::from(path)),
+        None => env::current_dir().map_err(InterfaceError::CurrentDir),
+    }
+}
+
 fn resolve_context() -> Result<HarnessContext, InterfaceError> {
-    let repo_root = match env::var_os("HARNESS_REPO_ROOT") {
-        Some(path) => PathBuf::from(path),
-        None => env::current_dir().map_err(InterfaceError::CurrentDir)?,
-    };
+    let repo_root = resolve_repo_root()?;
     let db_path = env::var_os("HARNESS_DB")
         .map(PathBuf::from)
         .unwrap_or_else(|| repo_root.join("harness.db"));
@@ -1234,6 +1287,14 @@ mod tests {
     #[test]
     fn cli_definition_is_valid() {
         Cli::command().debug_assert();
+    }
+
+    #[test]
+    fn knowledge_commands_remain_exposed() {
+        let mut command = Cli::command();
+        let knowledge = command.find_subcommand_mut("knowledge").unwrap();
+        assert!(knowledge.find_subcommand_mut("scaffold").is_some());
+        assert!(knowledge.find_subcommand_mut("check").is_some());
     }
 
     #[test]
