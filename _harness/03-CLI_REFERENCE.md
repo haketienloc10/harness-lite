@@ -27,9 +27,8 @@ scripts/bin/harness-cli import brownfield  # Seed durable records từ state mar
 scripts/bin/harness-cli --version   # Xem phiên bản CLI
 ```
 
-- `migrate` áp các file dưới `scripts/schema/` chưa chạy (vd
-  `003-tool-registry.sql`, `004-intervention.sql`). Chạy sau khi cập nhật
-  binary/schema để bật lệnh Phase 5.
+- `migrate` áp các file dưới `scripts/schema/` chưa chạy. Chạy sau khi cập nhật
+  binary hoặc thêm schema mới.
 - `import brownfield` chỉ dùng khi khởi tạo durable layer từ docs có sẵn.
 
 ## 2. Intake (phân loại đầu vào)
@@ -238,9 +237,8 @@ scripts/bin/harness-cli query interventions --type correction
 
 ## 11. Audit & Improvement (drift + tự cải tiến)
 
-Vòng tự cải tiến Phase 5:
-`friction + interventions + audit -> propose -> backlog`. Xem
-`docs/HARNESS_AUDIT.md`, `docs/IMPROVEMENT_PROTOCOL.md`, decision `0007`.
+Vòng tự cải tiến: `friction + interventions + audit -> propose -> backlog`. Xem
+`docs/HARNESS_AUDIT.md`, `docs/IMPROVEMENT_PROTOCOL.md`.
 
 ```bash
 # Drift audit: in từng nhóm lệch + điểm entropy (thấp là tốt, cap 100)

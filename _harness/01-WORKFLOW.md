@@ -192,16 +192,16 @@
 - **Backlog Protocol:** BẮT BUỘC dùng `--predicted "<kết quả dự đoán>"`. Khi
   đóng ticket dùng `--outcome "<thực tế>"`. (Risk chỉ được chọn `tiny`,
   `normal`, `high-risk`).
-- **Vòng tự cải tiến (Phase 5):**
+- **Vòng tự cải tiến:**
   `friction + interventions + audit -> propose -> backlog`.
-  1. `harness-cli audit` — in nhóm drift + điểm entropy (thấp là tốt; bảng trọng
-     số ở `docs/HARNESS_AUDIT.md`).
-  2. `harness-cli propose` — sinh đề xuất cải tiến tất định, evidence-backed từ
-     friction/intervention/audit (advisory). `propose --commit` chỉ tạo backlog
-     item `proposed`, KHÔNG sửa policy hay tự duyệt.
-  3. Con người review proposal (`query backlog --open`); proposal high-risk đổi
-     source hierarchy / kiến trúc / validation / risk policy vẫn cần decision
-     record (xem `docs/IMPROVEMENT_PROTOCOL.md`, decision `0007`).
+  - Chạy `harness-cli audit` để lấy nhóm drift + điểm entropy (thấp là tốt;
+    trọng số ở `docs/HARNESS_AUDIT.md`).
+  - Chạy `harness-cli propose` để sinh đề xuất tất định từ
+    friction/intervention/audit; `propose --commit` CHỈ tạo backlog item
+    `proposed`, KHÔNG tự sửa policy hay tự duyệt.
+  - Con người duyệt proposal (`query backlog --open`). Đề xuất đổi source
+    hierarchy / kiến trúc / validation / risk policy PHẢI tạo decision record
+    trước khi áp dụng (xem `docs/IMPROVEMENT_PROTOCOL.md`).
 
 ---
 
@@ -217,8 +217,8 @@ Docs/Matrix cập nhật, Validation đã chạy, Trace đã lưu.
   phân biệt rõ claim "partial" với "full").
   - KHÔNG claim H3 nếu chưa có đối chiếu benchmark và quy gán lỗi theo
     Component.
-  - H4 = batch verification: phải có `story verify-all` chạy được (Phase 5 đã
-    đạt). KHÔNG claim H4 nếu thiếu hệ thống batch verification.
+  - H4 = batch verification: KHÔNG claim H4 nếu `story verify-all` chưa chạy
+    được.
   - H5 = tự cải tiến: chỉ claim H5 _partial_ khi `audit` + `propose` +
     `intervention` đã có và chạy được; KHÔNG claim H5 _full_ cho tới khi
     benchmark/trace chứng minh vòng propose tạo delta dương (hoặc bị revert).
