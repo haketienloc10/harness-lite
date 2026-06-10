@@ -2,9 +2,18 @@
 
 ## ĐỊNH MỨC TOKEN (Context Budget)
 
+- **Phạm vi định mức (đọc trước khi áp số):** Định mức lane bên dưới CHỈ tính
+  phần context BIẾN ĐỔI theo tác vụ (intake docs, product/story/decision docs,
+  templates, file cần sửa). Tầng nền cố định — `00-AGENTS.md`, `01-WORKFLOW.md`,
+  `docs/KNOWLEDGE_INDEX.md`, `03-CLI_REFERENCE.md` (cheatsheet) — là chi phí
+  hằng (~9–10k token) cho MỌI lane, KHÔNG trừ vào định mức. (Bản guidance phía
+  người đọc: `docs/CONTEXT_RULES.md` §Token Budget Guidance — giữ hai nơi này
+  khớp nhau khi sửa.)
 - **Tài liệu dùng chung (Luôn có thể truy xuất):** Bất cứ khi nào cần tương tác
-  với `harness.db`, Agent luôn được phép đọc `_harness/03-CLI_REFERENCE.md` để
-  lấy cú pháp. Để biết lệnh/công cụ nào đang có, dùng
+  với `harness.db`, Agent luôn được phép đọc `_harness/03-CLI_REFERENCE.md`
+  (cheatsheet gọn) để lấy cú pháp; chi tiết sâu hơn nằm ở
+  `docs/CLI_REFERENCE.md` và `harness-cli <cmd> --help` — chỉ tra on-demand,
+  KHÔNG preload. Để biết lệnh/công cụ nào đang có, dùng
   `harness-cli query tools --summary` (tool registry, xem
   `docs/TOOL_REGISTRY.md`) thay vì đoán.
 - **Skill (nạp on-demand):** KHÔNG preload `skills/*`. Tới giai đoạn có trigger
@@ -14,12 +23,12 @@
   Rẻ hơn crawl `docs/`; dùng nó để chọn đúng file cần đọc tiếp cho lane hiện
   tại. Giới hạn freshness của `knowledge check`: xem nguồn duy nhất ở
   `00-AGENTS.md` §1.
-- **Tiny Lane:** ~2,000 tokens. Đọc `docs/KNOWLEDGE_INDEX.md`, `00-AGENTS.md`,
-  intake docs, matrix query, và file cần sửa.
-- **Normal Lane:** ~5,000 tokens. Đọc thêm product/story docs liên quan,
-  architecture (nếu cần đổi cấu trúc), và validation expectations.
-- **High-Risk Lane:** ~10,000 tokens. Đọc toàn bộ intake, architecture, quyết
-  định liên quan, templates rủi ro cao.
+- **Tiny Lane:** ~2,000 tokens biến đổi. Ngoài tầng nền: đọc intake docs, matrix
+  query, và file cần sửa.
+- **Normal Lane:** ~5,000 tokens biến đổi. Đọc thêm product/story docs liên
+  quan, architecture (nếu cần đổi cấu trúc), và validation expectations.
+- **High-Risk Lane:** ~10,000 tokens biến đổi. Đọc toàn bộ intake, architecture,
+  quyết định liên quan, templates rủi ro cao.
 
 ---
 

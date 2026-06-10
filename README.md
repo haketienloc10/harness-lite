@@ -108,7 +108,8 @@ Hãy sử dụng CLI do dự án cung cấp:
 Ví dụ để kiểm tra trạng thái tiến độ chung, hãy chạy:
 `scripts/bin/harness-cli query matrix`
 
-Cú pháp và tham số chuẩn xác của mọi lệnh nằm ở `_harness/03-CLI_REFERENCE.md`.
+Cú pháp mọi lệnh nằm ở `_harness/03-CLI_REFERENCE.md` (cheatsheet); ngữ nghĩa
+và ví dụ đầy đủ ở `docs/CLI_REFERENCE.md`.
 
 ## 3. Hệ thống Trace (Ghi vết)
 

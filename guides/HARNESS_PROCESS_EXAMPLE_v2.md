@@ -15,7 +15,7 @@ Public contracts: Có (API endpoint /login).
 Hard Gates: Chạm rào cản cứng về Auth và Audit/security.
 2. Quyết định Lane:
 Thuật toán: IF [Dính >= 1 Hard Gate] HOẶC [>= 4 Flags] -> Lane = high-risk.
-=> Tác vụ này được phân loại vào High-Risk Lane (~10,000 tokens context).
+=> Tác vụ này được phân loại vào High-Risk Lane (~10,000 tokens context biến đổi, không tính tầng nền).
 3. Hành động CLI:
 Agent ghi nhận intake vào cơ sở dữ liệu:
 scripts/bin/harness-cli intake --type "New spec" --summary "Implement Email/Password login returning JWT token" --lane high-risk

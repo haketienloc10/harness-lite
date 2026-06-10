@@ -29,9 +29,9 @@ thành thay đổi an toàn.
 - **Durable Layer:** Chính sách nằm ở file Markdown, còn dữ liệu vận hành
   (intake, story, quyết định, trace, **intervention**, **tool registry**) PHẢI
   lưu bằng SQLite (`harness.db`) thông qua CLI. BẮT BUỘC tra cứu
-  `_harness/03-CLI_REFERENCE.md` để biết cú pháp và tham số chuẩn xác của mọi
-  lệnh `harness-cli` (gồm `story verify-all`, `audit`, `propose`,
-  `intervention`, `tool`, `score-context`).
+  `_harness/03-CLI_REFERENCE.md` (cheatsheet: quy ước giá trị + cú pháp mọi lệnh
+  `harness-cli`); flag đầy đủ qua `harness-cli <cmd> --help`; ngữ nghĩa/ví dụ
+  sâu ở `docs/CLI_REFERENCE.md` (on-demand, chỉ đọc mục cần).
 - **Tài liệu tham chiếu sâu (khi cần):** `_harness/*` là bộ khung thực thi
   chính. Khi cần chi tiết hơn (mô hình tổng thể, lý do, taxonomy, maturity), tra
   cứu `docs/*` — KHÔNG bắt buộc đọc hết; entrypoint thực thi vẫn là
