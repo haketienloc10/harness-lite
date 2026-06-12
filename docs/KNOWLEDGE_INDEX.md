@@ -66,8 +66,10 @@ Docs-First 7-stage workflow and a durable SQLite layer driven by `harness-cli`.
   product contract for one change.
 - `docs/templates/` — Authoring templates for decisions, stories, spec intake,
   and validation reports.
-- `scripts/bin/` — Prebuilt `harness-cli` binary shipped into installed repos
-  (see decision `0005`).
+- `docs/wiki/` — Generated DeepWiki: one page per major component (agent
+  harness, CLI, data model, distribution, docs, skills), each linking back to
+  source.
+- `scripts/bin/` — Prebuilt `harness-cli` binary shipped into installed repos.
 - `scripts/schema/` — SQLite schema and migrations for the durable layer
   (`harness.db`).
 

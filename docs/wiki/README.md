@@ -11,8 +11,8 @@ Codex, Cursor, …): it gives them the project context they need _before_ they
 change code — where to start, what the product contract says, how risky the work
 is, what proof is required, and which decisions to inherit. Policy lives in
 Markdown; the operational records agents produce (intakes, stories, decisions,
-backlog, traces) are stored in a local SQLite database driven by a small Rust
-CLI.
+backlog, tools, interventions, traces) are stored in a local SQLite database
+driven by a small Rust CLI.
 
 The app is what users touch. The harness is what agents touch.
 

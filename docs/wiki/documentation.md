@@ -25,6 +25,13 @@ the durable narrative artifacts. It begins at
   and when to stop.
 - [`docs/KNOWLEDGE_INDEX.md`](../../docs/KNOWLEDGE_INDEX.md) — the onboarding
   router (generated/maintained by the knowledge skill).
+- [`docs/CLI_REFERENCE.md`](../../docs/CLI_REFERENCE.md) — the full
+  `harness-cli` reference (the cheatsheet lives in
+  `_harness/03-CLI_REFERENCE.md`).
+- [`docs/TRACE_SPEC.md`](../../docs/TRACE_SPEC.md) /
+  [`TOOL_REGISTRY.md`](../../docs/TOOL_REGISTRY.md) /
+  [`IMPROVEMENT_PROTOCOL.md`](../../docs/IMPROVEMENT_PROTOCOL.md) — specs for
+  traces, the tool registry, and the audit/propose improvement loop.
 - [`docs/HARNESS_COMPONENTS.md`](../../docs/HARNESS_COMPONENTS.md) /
   [`HARNESS_MATURITY.md`](../../docs/HARNESS_MATURITY.md) — responsibility
   taxonomy and maturity tracking.
@@ -34,17 +41,20 @@ the durable narrative artifacts. It begins at
 ```mermaid
 flowchart LR
   readme["README.md\nmap"] --> policy["Policy\nHARNESS, FEATURE_INTAKE,\nARCHITECTURE, CONTEXT_RULES"]
+  readme --> specs["Specs\nTRACE_SPEC, TOOL_REGISTRY,\nIMPROVEMENT_PROTOCOL, CLI_REFERENCE"]
   readme --> product["product/\ncurrent product truth"]
   readme --> stories["stories/\nepics + backlog"]
-  readme --> decisions["decisions/\nADR 0001..0009"]
+  readme --> decisions["decisions/\nADRs"]
   readme --> templates["templates/\nstory, decision,\nspec-intake, validation"]
-  stories --> epics["epics/E01-agent-onboarding\nUS-301..US-303"]
+  stories --> epics["epics/\none folder per epic"]
 ```
 
-The subtree splits into **policy** (the reference essays), **durable narrative**
+The subtree splits into **policy** (the reference essays), **specs** (trace,
+tool-registry, and improvement-protocol contracts), **durable narrative**
 (`product/`, `stories/`, `decisions/`), and **templates** that seed new
-artifacts. Decisions are numbered ADRs (`0001`…`0009`); stories are organized
-under epics (e.g. `E01-agent-onboarding`).
+artifacts. The narrative directories currently hold only their README
+conventions — decisions are numbered ADRs and stories are organized under epics,
+created as work happens.
 
 ## Public interface
 
